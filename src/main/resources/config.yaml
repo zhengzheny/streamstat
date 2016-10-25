@@ -1,0 +1,15 @@
+kafkaCluster:
+    app_id: noceStream1025
+    brokers: 10.17.35.109:9069
+    client_id: noce
+    zookeeper: 10.17.35.109:2181/kafkaFlumeTest
+    topic: flumetest
+    auto_offset_reset: latest
+    timestamp_extractor: org.apache.kafka.streams.processor.WallclockTimestampExtractor
+
+sourceFields:
+    - a
+    - b
+
+couterList:
+    - com.gsta.com.stream
