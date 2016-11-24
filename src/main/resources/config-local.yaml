@@ -1,9 +1,9 @@
 kafkaCluster:
-    app_id: noceStream1122
-    brokers: 132.122.70.131:9091,132.122.70.131:9092,132.122.70.132:9093,132.122.70.132:9094,132.122.70.133:9095,132.122.70.133:9096,132.122.70.134:9097,132.122.70.134:9098,132.122.70.135:9099,132.122.70.135:9091
+    app_id: noceStream1025
+    brokers: 10.17.35.109:9069
     client_id: noce
-    zookeeper: 132.122.70.140:2181,132.122.70.141:2181,132.122.70.142:2181/kafkaCluster
-    topic: 4GDPI
+    zookeeper: 10.17.35.109:2181/kafkaFlumeTest
+    topic: flumetest
     auto_offset_reset: latest
     timestamp_extractor: org.apache.kafka.streams.processor.WallclockTimestampExtractor
 

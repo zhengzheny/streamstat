@@ -340,21 +340,31 @@ public class ReliableSpoolingCompressFileEventReader implements ReliableEventRea
 		}
 
 		EventDeserializer des = currentFile.get().getDeserializer();
-		List<Event> events = des.readEvents(numEvents);
+		List<Event> events = new java.util.ArrayList<Event>();
+		//deal parse event exception
+		boolean flag = true;
+		try{
+			events = des.readEvents(numEvents);
+		}catch(Exception e){
+			e.printStackTrace();
+			flag = false;
+		}
 
 		/*
 		 * It's possible that the last read took us just up to a file boundary.
 		 * If so, try to roll to the next file, if there is one. Loop until
 		 * events is not empty or there is no next file in case of 0 byte files
 		 */
-		while (events.isEmpty()) {
-			logger.info("Last read took us just up to a file boundary. Rolling to the next file, if there is one.");
-			retireCurrentFile();
-			currentFile = getNextFile();
-			if (!currentFile.isPresent()) {
-				return Collections.emptyList();
+		if(flag){
+			while (events.isEmpty()) {
+				logger.info("Last read took us just up to a file boundary. Rolling to the next file, if there is one.");
+				retireCurrentFile();
+				currentFile = getNextFile();
+				if (!currentFile.isPresent()) {
+					return Collections.emptyList();
+				}
+				events = currentFile.get().getDeserializer().readEvents(numEvents);
 			}
-			events = currentFile.get().getDeserializer().readEvents(numEvents);
 		}
 
 		if (annotateFileName) {

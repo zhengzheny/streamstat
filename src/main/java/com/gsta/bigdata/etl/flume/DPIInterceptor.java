@@ -1,28 +1,38 @@
 package com.gsta.bigdata.etl.flume;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.interceptor.Interceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DPIInterceptor implements Interceptor {
 	private String delimiter;
 	private String headerName;
 	private int[] fields;
 	private int keyField;
+	private int kafkaPartitions = 256;
 	private static final String NotSeeCharDefineInConf = "001";
 	private String outputDelimiter;
-
+	private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+	final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private Random random = new Random();
+	
 	public DPIInterceptor(String delimiter, int[] fields, int keyField,
-			String headerName) {
+			String headerName,int kafkaPartitions) {
 		super();
 		this.delimiter = delimiter;
 		this.fields = fields;
 		this.headerName = headerName;
 		this.keyField = keyField;
+		this.kafkaPartitions = kafkaPartitions;
 		
 		this.outputDelimiter = StringEscapeUtils.unescapeJava(this.delimiter);
 		if (NotSeeCharDefineInConf.equals(this.delimiter)) {
@@ -65,9 +75,38 @@ public class DPIInterceptor implements Interceptor {
 			line = sb.toString().substring(0,sb.length() - this.outputDelimiter.length());
 		}
 		
+		//get timestamp from file name
+		//f_8_S1udns-Guangdong-20161107190754.txt.gz
+		//f_10_S1uhttp-Guangdong-20161105160957.txt.gz
+		//f_11_S1uother-Guangdong-20161103031029.txt.gz
+		//S1ustraming-Guangdong-20161024100021.txt.gz
+		String fileName = event.getHeaders().get(SpoolDirectorySourceConstants.DEFAULT_BASENAME_HEADER_KEY);
+		if(fileName == null){
+			//default is system time
+			line = line + this.outputDelimiter + System.currentTimeMillis();
+		}else{
+			int idx1 = fileName.lastIndexOf("-");
+			int idx2 = fileName.indexOf(".");
+			if(idx1 >0 && idx2 >0){
+				String ts = fileName.substring(idx1+1, idx2);
+				try {
+					line = line + this.outputDelimiter + this.sdf.parse(ts).getTime();
+				} catch (ParseException e) {
+					logger.warn("parse filename=" + fileName + ",occur " + e.getMessage());
+				}
+			}else{
+				line = line + this.outputDelimiter + System.currentTimeMillis();
+			}
+		}
+		
 		event.setBody(line.getBytes());
 		if (this.keyField > 0 && this.keyField <= fieldValues.length) {
-			event.getHeaders().put(this.headerName,fieldValues[this.keyField - 1]);
+			String keyValue = fieldValues[this.keyField - 1];
+			//if invalid mdn,set random 
+			if(keyValue == null || keyValue.length() < 6){
+				keyValue = String.valueOf(random.nextInt(this.kafkaPartitions));
+			}
+			event.getHeaders().put(this.headerName,keyValue);
 		}
 
 		return event;
@@ -99,6 +138,7 @@ public class DPIInterceptor implements Interceptor {
 		private String strKeyField;
 		private int[] fields;
 		private int keyField;
+		private int kafkaPartitions = 256;
 
 		@Override
 		public void configure(Context context) {
@@ -118,12 +158,14 @@ public class DPIInterceptor implements Interceptor {
 			if (this.strKeyField != null) {
 				this.keyField = Integer.parseInt(this.strKeyField);
 			}
+			
+			this.kafkaPartitions = Integer.parseInt(context.getString("kafkaPartitions"));
 		}
 
 		@Override
 		public Interceptor build() {
 			return new DPIInterceptor(this.delimiter, this.fields,
-					this.keyField, this.headerName);
+					this.keyField, this.headerName,this.kafkaPartitions);
 		}
 	}
 
@@ -141,6 +183,7 @@ public class DPIInterceptor implements Interceptor {
 		DPIInterceptor i = (DPIInterceptor)builder.build();
 		i.initialize();
 		Event event = new org.apache.flume.event.SimpleEvent();
+		event.getHeaders().put("key", "f_8_S1udns-Guangdong-20161107190754.txt.gz");
 		event.setBody(s.getBytes());
 		i.intercept(event);
 		System.out.println(new String(event.getBody()));
