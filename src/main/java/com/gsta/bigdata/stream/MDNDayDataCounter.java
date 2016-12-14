@@ -29,6 +29,7 @@ public class MDNDayDataCounter extends AbstractCounter {
 		}
 		
 		String mdn = valueData.get(Constants.FIELD_MSISDN);
+		if(mdn == null) return;
 		long timeStamp = -1L, inputOctets = 0, outputOctets = 0;
 		try {
 			timeStamp = Long.parseLong(valueData.get(Constants.FIELD_TIMESTAMP));

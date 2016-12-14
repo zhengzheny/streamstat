@@ -1,8 +1,6 @@
 package com.gsta.bigdata.stream;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
 import org.opentsdb.client.ExpectResponse;
 import org.opentsdb.client.HttpClient;
@@ -13,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gsta.bigdata.stream.utils.ConfigSingleton;
+import com.gsta.bigdata.stream.utils.SysUtils;
 
 public class OpenTSDBFlush implements IFlush {
 	private HttpClient client;
@@ -36,7 +35,7 @@ public class OpenTSDBFlush implements IFlush {
 		//only flush timestamp key
 		if (keyField == null) {
 			builder.addMetric(counterName)
-					.setDataPoint(this.key2timestamp(timeStamp), count)
+					.setDataPoint(SysUtils.key2timestamp(timeStamp), count)
 					.addTag("processId", String.valueOf(processId));
 
 			try {
@@ -49,35 +48,6 @@ public class OpenTSDBFlush implements IFlush {
 				e.printStackTrace();
 			}
 		}
-	}
-	
-	public long key2timestamp(String key){
-		if (key != null) {
-			try {
-				long ret = 0L;
-				SimpleDateFormat sdf;
-				switch (key.length()) {
-				case 8:
-					sdf = new SimpleDateFormat("yyyyMMdd");
-					ret = sdf.parse(key).getTime();
-					break;
-				case 10:
-					sdf = new SimpleDateFormat("yyyyMMddHH");
-					ret = sdf.parse(key).getTime();
-					break;
-				case 12:
-					sdf = new SimpleDateFormat("yyyyMMddHHmm");
-					ret = sdf.parse(key).getTime();
-					break;
-				}
-
-				return ret / 1000L;
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
-		}//end if
-		
-		return System.currentTimeMillis()/1000;
 	}
 
 	@Override

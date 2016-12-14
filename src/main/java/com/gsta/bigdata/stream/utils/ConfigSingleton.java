@@ -214,6 +214,13 @@ public class ConfigSingleton {
 
 		return (Map<String, Object>) this.configs.get("mysql");
 	}
+	
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> getElasticsearchConf() {
+		Preconditions.checkNotNull(this.configs, "yaml config is null");
+
+		return (Map<String, Object>) this.configs.get("elasticsearch");
+	}
 
 	@SuppressWarnings("unchecked")
 	public String getOpenTSDBURL() {

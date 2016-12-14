@@ -12,6 +12,7 @@ public class Constants {
 	public final static String FLUSH_SIMPLE_REDIS = "simpleRedis";
 	public final static String FLUSH_MDN_DAY_REDIS = "mdnDayRedis";
 	public final static String FLUSH_OPENTSDB = "opentsdb";
+	public final static String FLUSH_ELASTICSEARCH = "elasticsearch";
 	
 	public final static String KEY_DELIMITER = "+";
 	

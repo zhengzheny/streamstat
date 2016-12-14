@@ -1,5 +1,5 @@
 kafkaCluster:
-    app_id: noceStream1122
+    app_id: noceStream1214
     brokers: 132.122.70.131:9091,132.122.70.131:9092,132.122.70.132:9093,132.122.70.132:9094,132.122.70.133:9095,132.122.70.133:9096,132.122.70.134:9097,132.122.70.134:9098,132.122.70.135:9099,132.122.70.135:9091
     client_id: noce
     zookeeper: 132.122.70.140:2181,132.122.70.141:2181,132.122.70.142:2181/kafkaCluster
@@ -31,53 +31,52 @@ couterList:
 #derepeated mdn and mdn-prefix stat in 5 min
 huawei4g-userstat-5min:
     type: com.gsta.bigdata.stream.DPIUserStatCounter
-    flushes: console,mysql,opentsdb
+    flushes: elasticsearch
     flushTimeGapRatio: 2.0
     
 #derepeated mdn and mdn-prefix stat in 1 hour   
 huawei4g-userstat-1hour:
     type: com.gsta.bigdata.stream.DPIUserStatCounter
-    flushes: console,mysql,opentsdb
+    flushes: elasticsearch
     flushTimeGapRatio: 1.1
 
 #derepeated mdn and mdn-prefix stat in 1 day
 huawei4g-userstat-1day:
     type: com.gsta.bigdata.stream.DPIUserStatCounter
-    flushes: console,mysql,opentsdb
+    flushes: elasticsearch
     flushTimeGapRatio: 1.02
 
 #mdn prefix data count in 1 hour
 mdn-prefix-data-1hour:
     type: com.gsta.bigdata.stream.MDNPrefix1HourDataCounter
-    flushes: console,mysql
+    flushes: elasticsearch
     flushTimeGapRatio: 1.1
     
 #dpi count in 1 hour
 dpi-1hour:
     type: com.gsta.bigdata.stream.DPI1HourCounter
-    flushes: console,mysql,opentsdb
+    flushes: elasticsearch
     flushTimeGapRatio: 1.1
   
 mdn-day-data:
     type: com.gsta.bigdata.stream.MDNDayDataCounter
-    flushes: console,mdnDayRedis
+    flushes: elasticsearch
     flushTimeGapRatio: 1.02
-#    continuousFlushes: console,mdnDayRedis
     continuousFlushes: mdnDayRedis
     #unit is second
     flushWaitTime: 120
 
 domain-5min:
     type: com.gsta.bigdata.stream.Field5MinCounter
-    flushes: console,mysql
+    flushes: elasticsearch
     flushTimeGapRatio: 1.1
     statField: Domain
 
 CGI-5min:
     type: com.gsta.bigdata.stream.Field5MinCounter
-    flushes: console,mysql
+    flushes: elasticsearch
     flushTimeGapRatio: 1.1
-    statField: ECGI    
+    statField: ECGI 
     
 mysql:
     url: jdbc:mysql://132.122.70.138:3306/streamstat?useUnicode=true&characterEncoding=UTF-8
@@ -96,7 +95,7 @@ opentsdb:
     url: http://132.122.70.138:4242
     
 redis:
-    host: 10.17.35.80
+    host: 132.122.70.132
     port: 6379
     #unit is second,604800 second = 7day
     keyExpire: 604800 
@@ -112,6 +111,16 @@ redis:
     testWhileIdle: true
     testOnReturn: true
     blockWhenExhausted: false
+
+elasticsearch:
+    cluster.name: gd
+    client.transport.sniff: true
+    cluster.nodes:
+        - 132.122.70.131
+        - 132.122.70.132
+        - 132.122.70.133
+    port: 9300
+    index.name: 4gdpi
 
 bloomFilter:
     falsePositiveProbability: 0.1
