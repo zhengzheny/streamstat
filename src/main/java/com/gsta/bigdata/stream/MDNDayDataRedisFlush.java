@@ -14,7 +14,7 @@ public class MDNDayDataRedisFlush extends SimpleRedisFlush {
 	}
 
 	@Override
-	public void flush(String counterName, Map<String, String> fieldValues, String timeStamp,
+	public void flush(String counterName,String key, Map<String, String> fieldValues, String timeStamp,
 			long count, int processId) {
 		if(fieldValues == null)  return;
 		

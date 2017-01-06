@@ -12,10 +12,19 @@
 		<fileSet>
 			<directory>${basedir}/src/main/assembly</directory>
 			<outputDirectory>bin/</outputDirectory>
-			<excludes>
-				<exclude>*.xml</exclude>
-				<exclude>etl-flume.sh</exclude>
-			</excludes>
+			<includes>
+				<include>autostream.sh</include>
+				<include>etl-kafkastream.sh</include>
+			</includes>
+			<fileMode>0755</fileMode>
+		</fileSet>
+		<fileSet>
+			<directory>${basedir}/src/main/assembly</directory>
+			<outputDirectory>./</outputDirectory>
+			<includes>
+				<include>startstream.sh</include>
+				<include>stopstream.sh</include>
+			</includes>
 			<fileMode>0755</fileMode>
 		</fileSet>
 		<fileSet>
@@ -24,6 +33,7 @@
 			<includes>
 				<include>config.yaml</include>
 				<include>log4j.properties</include>
+				<include>cron</include>
 			</includes>
 		</fileSet>
 		<fileSet>

@@ -14,9 +14,9 @@ public class ConsoleFlush implements IFlush {
 	}
 
 	@Override
-	public void flush(String counterName, Map<String, String> fieldValues, String timeStamp,
+	public void flush(String counterName, String key,Map<String, String> fieldValues, String timeStamp,
 			long count, int processId) {
-		logger.info("counterName=" + counterName + ",keyField=" + fieldValues.toString()
+		logger.info("counterName=" + counterName + ",key=" + key + ",keyField=" + fieldValues.toString()
 				+ ",processId=" + processId + ",timeStamp=" + timeStamp + ",count=" + count);
 	}
 

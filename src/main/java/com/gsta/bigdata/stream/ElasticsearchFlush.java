@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import com.gsta.bigdata.stream.utils.ConfigSingleton;
 import com.gsta.bigdata.stream.utils.Constants;
-import com.gsta.bigdata.stream.utils.SysUtils;
 
 public class ElasticsearchFlush implements IFlush {
 	final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -56,32 +55,21 @@ public class ElasticsearchFlush implements IFlush {
 	}
 	
 	@Override
-	public void flush(String counterName, Map<String, String> fieldValues, String timeStamp,
+	public void flush(String counterName,String key, Map<String, String> fieldValues, String timeStamp,
 			long count, int processId) {
 		Map<String,Object> map = new HashMap<String,Object>();
-		String key = "";
+		
 		if(fieldValues != null && fieldValues.size() > 0)  {
 			map.putAll(fieldValues);
-			for(Map.Entry<String, String> mapEntry:fieldValues.entrySet()){
-				key += mapEntry.getValue();
-				key += Constants.KEY_DELIMITER;
-			}
 		}
-		
-		long t = SysUtils.key2timestamp(timeStamp);
 		map.put("timeStamp",this.formatTimestamp(timeStamp));
 		map.put("count", count);
 		map.put("processId", processId);
 		map.put("counterName", counterName);
-		if(!"".equals(key)){
-			key += t;
-		}else{
-			key += t;
-		}
-		key += Constants.KEY_DELIMITER + processId;
+		String tempKey = key + Constants.KEY_DELIMITER + processId;
 		
 		IndexResponse response = client
-				.prepareIndex(this.indexName, counterName, key)
+				.prepareIndex(this.indexName, counterName, tempKey)
 				.setSource(map).get();
 		if (response.status() == RestStatus.CREATED) {
 			logger.info("counterName=" + counterName +

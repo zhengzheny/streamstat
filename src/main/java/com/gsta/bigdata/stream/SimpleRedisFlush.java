@@ -35,7 +35,7 @@ public class SimpleRedisFlush implements IFlush {
 	}
 	
 	@Override
-	public void flush(String counterName, Map<String, String> fieldValues, String timeStamp,
+	public void flush(String counterName, String key,Map<String, String> fieldValues, String timeStamp,
 			long count, int processId) {
 		Jedis jedis = jedisPool.getResource();
 		jedis.set(timeStamp, String.valueOf(count));

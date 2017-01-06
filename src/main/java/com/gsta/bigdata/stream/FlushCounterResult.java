@@ -56,7 +56,7 @@ public class FlushCounterResult implements Runnable {
 				long deltaTime = System.currentTimeMillis() - count.getTimestamp();
 				if (count.isFinished() || deltaTime > counter.getFlushTimeGap()) {
 					for (IFlush flush : counter.getFlushes()) {
-						flush.flush(counter.getName(), fieldValues, timeStamp,
+						flush.flush(counter.getName(), key,fieldValues, timeStamp,
 								count.getCnt(), processId);
 					}
 					counter.getCounters().remove(key);
@@ -70,7 +70,7 @@ public class FlushCounterResult implements Runnable {
 				IFlush[] continuousFlushes = counter.getContinuousFlushes();
 				if (continuousFlushes != null) {
 					for (IFlush flush : continuousFlushes) {
-						flush.flush(counter.getName(), fieldValues, timeStamp,
+						flush.flush(counter.getName(),key, fieldValues, timeStamp,
 								count.getCnt(), processId);
 					}
 				}

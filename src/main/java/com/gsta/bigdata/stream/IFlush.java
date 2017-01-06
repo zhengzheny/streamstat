@@ -11,7 +11,7 @@ public interface IFlush {
 	 * @param count
 	 * @param processId
 	 */
-	public void flush(String counterName, Map<String, String> fieldValues,
+	public void flush(String counterName,String key, Map<String, String> fieldValues,
 			String timeStamp, long count, int processId);
 
 	public void close();
