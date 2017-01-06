@@ -50,16 +50,6 @@
 			<version>2.9.0</version>
 		</dependency>
 		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.26</version>
-		</dependency>
-		<dependency>
-    		<groupId>c3p0</groupId>
-    		<artifactId>c3p0</artifactId>
-    		<version>0.9.1.2</version>
-		</dependency>
-		<dependency>
 		    <groupId>org.elasticsearch.client</groupId>
 		    <artifactId>transport</artifactId>
 		    <version>5.0.1</version>

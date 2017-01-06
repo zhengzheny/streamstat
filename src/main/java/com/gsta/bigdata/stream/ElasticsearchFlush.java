@@ -56,21 +56,25 @@ public class ElasticsearchFlush implements IFlush {
 	}
 	
 	@Override
-	public void flush(String counterName, String keyField, String timeStamp,
+	public void flush(String counterName, Map<String, String> fieldValues, String timeStamp,
 			long count, int processId) {
 		Map<String,Object> map = new HashMap<String,Object>();
 		String key = "";
-		if(keyField != null)  {
-			map.put("key", keyField);
-			key = keyField;
+		if(fieldValues != null && fieldValues.size() > 0)  {
+			map.putAll(fieldValues);
+			for(Map.Entry<String, String> mapEntry:fieldValues.entrySet()){
+				key += mapEntry.getValue();
+				key += Constants.KEY_DELIMITER;
+			}
 		}
+		
 		long t = SysUtils.key2timestamp(timeStamp);
 		map.put("timeStamp",this.formatTimestamp(timeStamp));
 		map.put("count", count);
 		map.put("processId", processId);
 		map.put("counterName", counterName);
 		if(!"".equals(key)){
-			key += Constants.KEY_DELIMITER + t;
+			key += t;
 		}else{
 			key += t;
 		}
@@ -81,7 +85,7 @@ public class ElasticsearchFlush implements IFlush {
 				.setSource(map).get();
 		if (response.status() == RestStatus.CREATED) {
 			logger.info("counterName=" + counterName +
-					",keyField=" + keyField +
+					",keyFields=" + fieldValues.toString() +
 					",timeStamp=" + timeStamp + 
 					",count=" + count + 
 					",processId=" + processId + 
@@ -124,16 +128,5 @@ public class ElasticsearchFlush implements IFlush {
 		}// end if
 
 		return null;
-	}
-
-	public static void main(String[] args) {
-		String counterName = "huawei4g-userstat-5min";
-		String keyField = null; //"13316090189";
-		String timeStamp = "201612182135";
-		long count = 50;
-		int processId = 6555;
-		ElasticsearchFlush esf = new ElasticsearchFlush();
-		esf.flush(counterName, keyField, timeStamp, count, processId);
-		esf.close();
 	}
 }

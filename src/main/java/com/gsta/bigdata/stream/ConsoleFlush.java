@@ -1,5 +1,7 @@
 package com.gsta.bigdata.stream;
 
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,9 +14,9 @@ public class ConsoleFlush implements IFlush {
 	}
 
 	@Override
-	public void flush(String counterName, String keyField, String timeStamp,
+	public void flush(String counterName, Map<String, String> fieldValues, String timeStamp,
 			long count, int processId) {
-		logger.info("counterName=" + counterName + ",keyField=" + keyField
+		logger.info("counterName=" + counterName + ",keyField=" + fieldValues.toString()
 				+ ",processId=" + processId + ",timeStamp=" + timeStamp + ",count=" + count);
 	}
 

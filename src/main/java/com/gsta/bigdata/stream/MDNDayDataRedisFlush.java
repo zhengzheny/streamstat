@@ -1,5 +1,7 @@
 package com.gsta.bigdata.stream;
 
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,17 +14,18 @@ public class MDNDayDataRedisFlush extends SimpleRedisFlush {
 	}
 
 	@Override
-	public void flush(String counterName, String keyField, String timeStamp,
+	public void flush(String counterName, Map<String, String> fieldValues, String timeStamp,
 			long count, int processId) {
-		if(keyField == null)  return;
+		if(fieldValues == null)  return;
 		
 		Jedis jedis = super.jedisPool.getResource();
 		//mdn,20161117,count
 		//if data flush to redis,cover it
-		jedis.hset(keyField, timeStamp, String.valueOf(count));
-		jedis.expire(keyField, super.keyExpire);
+		String mdn = (String)fieldValues.values().toArray()[0];
+		jedis.hset(mdn, timeStamp, String.valueOf(count));
+		jedis.expire(mdn, super.keyExpire);
 		
-		logger.info("counterName=" + counterName + ",keyField=" + keyField
+		logger.info("counterName=" + counterName + ",keyField=" + fieldValues.toString()
 				+ ",processId=" + processId + ",timeStamp=" + timeStamp
 				+ ",count=" + count + ",expireTime=" + super.keyExpire);
 	

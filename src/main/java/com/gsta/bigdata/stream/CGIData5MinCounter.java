@@ -9,25 +9,27 @@ import com.gsta.bigdata.stream.utils.ConfigSingleton;
 import com.gsta.bigdata.stream.utils.Constants;
 import com.gsta.bigdata.stream.utils.WindowTime;
 
-public class MDNDayDataCounter extends AbstractCounter {
+public class CGIData5MinCounter extends AbstractCounter {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	private long flushTimeGap;	
-
-	public MDNDayDataCounter(String name) {
+	private long flushTimeGap;
+	
+	public CGIData5MinCounter(String name) {
 		super(name);
-
-		// 24 hours
-		double t = 24 * 3600 * 1000 * ConfigSingleton.getInstance()
-				.getCounterFlushTimeGapRatio(super.name);
+		
+		// 5 minute
+		double t = 5 * 60 * 1000 * ConfigSingleton.getInstance()
+				.getCounterFlushTimeGapRatio(name);
 		this.flushTimeGap = (long) t;
 	}
 
 	@Override
-	public void add(String kafkaKey,Map<String, String> valueData,String mdn, long timeStamp) {
-		if (kafkaKey == null || valueData == null) {
+	public void add(String kafkaKey, Map<String, String> valueData, String mdn,
+			long timeStamp) {
+		if (kafkaKey == null || valueData == null || super.getKeyFields() == null) {
 			return;
 		}
-		
+
+		String CGI = valueData.get(super.getKeyFields()[0]);
 		long inputOctets = 0, outputOctets = 0;
 		try {
 			inputOctets = Long.parseLong(valueData.get(Constants.FIELD_InputOctets));
@@ -36,16 +38,17 @@ public class MDNDayDataCounter extends AbstractCounter {
 			logger.error(e.getMessage());
 			return;
 		}
-		
-		String ts = WindowTime.get1day(timeStamp).getTimeStamp();
-		String key = mdn + Constants.KEY_DELIMITER + ts;
-	
-		long mdnData = inputOctets + outputOctets;
-		super.getCounters().computeIfAbsent(key, k -> new Count()).inc(mdnData);
+
+		String ts = WindowTime.get5min(timeStamp).getTimeStamp();
+		String key = CGI + Constants.KEY_DELIMITER + ts;
+		long data = inputOctets + outputOctets;
+
+		super.getCounters().computeIfAbsent(key, k -> new Count()).inc(data);
 	}
 
 	@Override
 	public long getFlushTimeGap() {
 		return this.flushTimeGap;
 	}
+
 }

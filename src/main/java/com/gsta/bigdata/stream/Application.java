@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import com.gsta.bigdata.stream.utils.ConfigSingleton;
 import com.gsta.bigdata.stream.utils.Constants;
-import com.gsta.bigdata.stream.utils.MySQLConnSingleton;
 import com.gsta.bigdata.stream.utils.SysUtils;
 
 public class Application {
@@ -36,47 +35,54 @@ public class Application {
 		return counters;
 	}
 	
-	//shutdown the application,flush counters 
-	private static void flushCounters(AbstractCounter[] counters){
-		if(counters == null){
+	// shutdown the application,flush counters
+	private static void flushCounters(AbstractCounter[] counters) {
+		if (counters == null) {
 			return;
 		}
-		
+
 		int processId = SysUtils.getProcessID();
-		
+
 		for (AbstractCounter counter : counters) {
-			if(counter == null) continue;
-			
+			if (counter == null)
+				continue;
+
 			logger.info("begin flush counter:" + counter.getName());
-			Map<String,Map<String, Count>> results = counter.getCounters();
-			if(results == null) continue;
-			
-			for(Map<String,Count> result:results.values()){
-				for (Map.Entry<String, Count> mapEntry : result.entrySet()) {
-					String key = mapEntry.getKey();
-					if(key == null) continue;
-					
-					String keyField = null,timeStamp=null;
-					int idx = key.indexOf(Constants.KEY_DELIMITER);
-					if(idx > 0){
-						keyField = key.substring(0, idx);
-						timeStamp = key.substring(idx+1);
-					}else{
-						timeStamp = key;
-					}
-					
-					Count count = mapEntry.getValue();
-					//after flush time gap of counter,flush to disk and remove it from memory
-					long deltaTime = System.currentTimeMillis() - count.getTimestamp();
-					if (count.isFinished() || deltaTime > counter.getFlushTimeGap()) {
-						for(IFlush flush:counter.getFlushes()){
-							flush.flush(counter.getName(),keyField, timeStamp,count.getCnt(), processId);
+
+			for (Map.Entry<String, Count> mapEntry : counter.getCounters().entrySet()) {
+				String key = mapEntry.getKey();
+				if (key == null)
+					continue;
+
+				String timeStamp = null;
+				Map<String,String> fieldValues = new HashMap<String, String>();
+				if(counter.getKeyFields() == null){
+					timeStamp = key;
+				}else{
+					String[] values = key.split(Constants.KEY_DELIMITER, -1);
+					if (values != null
+							&& values.length - counter.getKeyFields().length == 1) {
+						int i = 0;
+						for(String field:counter.getKeyFields()){
+							fieldValues.put(field, values[i]);
+							i++;
 						}
-						results.remove(key);
+						timeStamp = values[i];
 					}
-				}//end for result,map.values()
-			}//end for results
-		}//end for counters
+				}
+
+				Count count = mapEntry.getValue();
+				// after flush time gap of counter,flush to disk and remove it from memory
+				long deltaTime = System.currentTimeMillis() - count.getTimestamp();
+				if (count.isFinished() || deltaTime > counter.getFlushTimeGap()) {
+					for (IFlush flush : counter.getFlushes()) {
+						flush.flush(counter.getName(), fieldValues, timeStamp,
+								count.getCnt(), processId);
+					}
+					counter.getCounters().remove(key);
+				}
+			}
+		}// end for counters
 		logger.info("finishing flush all counters");
 	}
 	
@@ -109,15 +115,30 @@ public class Application {
 		String topic = ConfigSingleton.getInstance().getKafkaInputTopic();
 		KStreamBuilder builder = new KStreamBuilder();
 		KStream<String, String> source = builder.stream(topic);
+		
+		//init bloom filter factory
+		BloomFilterFactory.getInstance().init();
 
 		source.map(new KeyValueMapper<String, String, KeyValue<String, String>>() {			
 			@Override
 			public KeyValue<String, String> apply(String key, String value) {
 				logger.debug("key=" + key + ",value=" + value);
 				Map<String, String> data = parseValue(value,sourceFields,sourceDelimiter);
-				for(AbstractCounter counter:counters){
-					if(counter != null) counter.add(key, data);
+				
+				//deal with by bloom filter
+				String mdn = data.get(Constants.FIELD_MSISDN);
+				long timeStamp = -1L;
+				try {
+					timeStamp = Long.parseLong(data.get(Constants.FIELD_TIMESTAMP));
+				} catch (NumberFormatException e) {
+					logger.error("invalid timestamp field:" + e.getMessage());
+					return new KeyValue<>(null, null);
 				}
+								
+				for(AbstractCounter counter:counters){
+					if(counter != null) counter.add(key, data,mdn,timeStamp);
+				}
+				BloomFilterFactory.getInstance().add(timeStamp, mdn);
 				return new KeyValue<>(null, null);
 			}
 		});
@@ -134,10 +155,11 @@ public class Application {
 		}
 		
 		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@SuppressWarnings("static-access")
 			public void run() {
 				try {
 					logger.info("The JVM Hook is execute...");
+					//close kafka stream
+					streams.close();
 					
 					//flush counter result
 					flushCounters(counters);
@@ -148,12 +170,6 @@ public class Application {
 							flush.close();
 						}
 					}
-					
-					//close mysql pool
-					MySQLConnSingleton.getInstance().close();
-					
-					//close kafka stream
-					streams.close();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

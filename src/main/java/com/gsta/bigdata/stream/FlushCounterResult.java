@@ -1,5 +1,6 @@
 package com.gsta.bigdata.stream;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -26,56 +27,62 @@ public class FlushCounterResult implements Runnable {
 				break;
 			}
 			
-			//logger.info("begin flush counter:" + counter.getName());
-			Map<String,Map<String, Count>> results = counter.getCounters();
-			if(results == null){
-				logger.error(counter.getName() + "'s result is null");
-				break;
-			}
-			
-			for(Map<String,Count> result:results.values()){
-				for (Map.Entry<String, Count> mapEntry : result.entrySet()) {
-					String key = mapEntry.getKey();
-					if(key == null) continue;
-					
-					String keyField = null,timeStamp=null;
-					int idx = key.indexOf(Constants.KEY_DELIMITER);
-					if(idx > 0){
-						keyField = key.substring(0, idx);
-						timeStamp = key.substring(idx+1);
-					}else{
-						timeStamp = key;
-					}
-					
-					Count count = mapEntry.getValue();
-					//after flush time gap of counter,flush to disk and remove it from memory
-					long deltaTime = System.currentTimeMillis() - count.getTimestamp();
-					if (count.isFinished() || deltaTime > counter.getFlushTimeGap()) {
-						for(IFlush flush:counter.getFlushes()){
-							flush.flush(counter.getName(),keyField, timeStamp,count.getCnt(), processId);
-						}
-						result.remove(key);
-					}
-					
-					/*sometimes the time gap of counter maybe is the whole day,
-					the user would like to see the middle result,system flush to disk,
-					general flush includes redis and console
-					*/
-					IFlush[] continuousFlushes = counter.getContinuousFlushes();
-					if(continuousFlushes != null){
-						for(IFlush flush:continuousFlushes){
-							flush.flush(counter.getName(),keyField, timeStamp,count.getCnt(), processId);
-						}
-					}
-				}//end for result,map.values()
-			}//end for results
+			//logger.info("flush " + counter.getName() + " record:" + counter.getCounters().size());
+			// logger.info("begin flush counter:" + counter.getName());
+			for (Map.Entry<String, Count> mapEntry : counter.getCounters().entrySet()) {
+				String key = mapEntry.getKey();
+				if (key == null)
+					continue;
 
-			//sleep flushWaitTime second
+				String timeStamp = null;
+				Map<String,String> fieldValues = new HashMap<String, String>();
+				if(counter.getKeyFields() == null){
+					timeStamp = key;
+				}else{
+					String[] values = key.split(Constants.KEY_DELIMITER, -1);
+					if (values != null
+							&& values.length - counter.getKeyFields().length == 1) {
+						int i = 0;
+						for(String field:counter.getKeyFields()){
+							fieldValues.put(field, values[i]);
+							i++;
+						}
+						timeStamp = values[i];
+					}
+				}
+				
+				Count count = mapEntry.getValue();
+				// after flush time gap of counter,flush to disk and remove it from memory
+				long deltaTime = System.currentTimeMillis() - count.getTimestamp();
+				if (count.isFinished() || deltaTime > counter.getFlushTimeGap()) {
+					for (IFlush flush : counter.getFlushes()) {
+						flush.flush(counter.getName(), fieldValues, timeStamp,
+								count.getCnt(), processId);
+					}
+					counter.getCounters().remove(key);
+				}
+
+				/*
+				 * sometimes the time gap of counter maybe is the whole day, the
+				 * user would like to see the middle result,system flush to
+				 * disk, general flush includes redis and console
+				 */
+				IFlush[] continuousFlushes = counter.getContinuousFlushes();
+				if (continuousFlushes != null) {
+					for (IFlush flush : continuousFlushes) {
+						flush.flush(counter.getName(), fieldValues, timeStamp,
+								count.getCnt(), processId);
+					}
+				}
+			}// end for results
+
+			// sleep flushWaitTime second
 			try {
 				Thread.sleep(counter.getFlushWaitTime() * 1000L);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-		}//end while
-	}//end run
+		}// end while
+	}// end run
+	
 }

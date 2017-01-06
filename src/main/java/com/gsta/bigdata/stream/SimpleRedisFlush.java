@@ -1,6 +1,9 @@
 package com.gsta.bigdata.stream;
 
 import static com.gsta.bigdata.stream.utils.ConfigSingleton.getInstance;
+
+import java.util.Map;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -32,7 +35,7 @@ public class SimpleRedisFlush implements IFlush {
 	}
 	
 	@Override
-	public void flush(String counterName, String keyField, String timeStamp,
+	public void flush(String counterName, Map<String, String> fieldValues, String timeStamp,
 			long count, int processId) {
 		Jedis jedis = jedisPool.getResource();
 		jedis.set(timeStamp, String.valueOf(count));

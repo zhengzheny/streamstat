@@ -22,6 +22,7 @@ public class ConfigSingleton {
 	@SuppressWarnings("unchecked")
 	private ConfigSingleton() {
 		URL url = Thread.currentThread().getContextClassLoader().getResource("config.yaml");
+		//URL url = Thread.currentThread().getContextClassLoader().getResource("config-local.yaml");
 		if (url != null) {
 			try {
 				InputStream is = new FileInputStream(url.getPath());
@@ -99,7 +100,7 @@ public class ConfigSingleton {
 		
 		return (List<String>) this.configs.get("couterList");
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	public String[] getCounterFlushes(String counterName) {
 		Preconditions.checkNotNull(this.configs, "yaml config is null");
@@ -166,7 +167,7 @@ public class ConfigSingleton {
 
 		Map<String, Object> counters = (Map<String, Object>) this.configs.get(counterName);
 		if (counters != null) {
-			return (String)counters.get("statField");
+			return (String)counters.get("keyFields");
 		}
 		
 		return null;
@@ -183,38 +184,33 @@ public class ConfigSingleton {
 		
 		return null;
 	}
-
+	
 	@SuppressWarnings("unchecked")
-	public int getBloomFilterExpectedSize() {
+	public String getCounterBloomFilter(String counterName){
 		Preconditions.checkNotNull(this.configs, "yaml config is null");
-		
-		Map<String, Object> bloomFilter = (Map<String, Object>) this.configs.get("bloomFilter");
-		if (bloomFilter != null) {
-			return (int) bloomFilter.getOrDefault("expectedSize",1000);
-		}
 
-		return 1000;
-	}
-
-	@SuppressWarnings("unchecked")
-	public double getBloomFilterFPP() {
-		Preconditions.checkNotNull(this.configs, "yaml config is null");
-		
-		Map<String, Object> bloomFilter = (Map<String, Object>) this.configs.get("bloomFilter");
-		if (bloomFilter != null) {
-			return (double) bloomFilter.getOrDefault("falsePositiveProbability",0.1);
+		Map<String, Object> counters = (Map<String, Object>) this.configs.get(counterName);
+		if (counters != null) {
+			return (String)counters.get("bloomFilter");
 		}
 		
-		return 0.1;
-	}
-
-	@SuppressWarnings("unchecked")
-	public Map<String, Object> getMySQLConf() {
-		Preconditions.checkNotNull(this.configs, "yaml config is null");
-
-		return (Map<String, Object>) this.configs.get("mysql");
+		return null;
 	}
 	
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> getCounterConf(String counterName){
+		Preconditions.checkNotNull(this.configs, "yaml config is null");
+
+		return (Map<String, Object>) this.configs.get(counterName);
+	}
+
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> getBloomFilter(){
+		Preconditions.checkNotNull(this.configs, "yaml config is null");
+
+		return (Map<String, Object>) this.configs.get("bloomFilter");
+	}
+
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> getElasticsearchConf() {
 		Preconditions.checkNotNull(this.configs, "yaml config is null");
@@ -222,18 +218,6 @@ public class ConfigSingleton {
 		return (Map<String, Object>) this.configs.get("elasticsearch");
 	}
 
-	@SuppressWarnings("unchecked")
-	public String getOpenTSDBURL() {
-		Preconditions.checkNotNull(this.configs, "yaml config is null");
-		
-		Map<String, Object> opentsdb = (Map<String, Object>) this.configs.get("opentsdb");
-		if (opentsdb != null) {
-			return (String) opentsdb.get("url");
-		}
-
-		return null;
-	}
-	
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> getRedisProperties() {
 		Preconditions.checkNotNull(this.configs, "yaml config is null");
