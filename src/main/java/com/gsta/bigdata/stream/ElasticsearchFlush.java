@@ -56,7 +56,7 @@ public class ElasticsearchFlush implements IFlush {
 	
 	@Override
 	public void flush(String counterName,String key, Map<String, String> fieldValues, String timeStamp,
-			long count, int processId) {
+			long count, int processId,String ip) {
 		Map<String,Object> map = new HashMap<String,Object>();
 		
 		if(fieldValues != null && fieldValues.size() > 0)  {
@@ -66,7 +66,8 @@ public class ElasticsearchFlush implements IFlush {
 		map.put("count", count);
 		map.put("processId", processId);
 		map.put("counterName", counterName);
-		String tempKey = key + Constants.KEY_DELIMITER + processId;
+		String tempKey = key + Constants.KEY_DELIMITER + processId + 
+				Constants.KEY_DELIMITER + ip;
 		
 		IndexResponse response = client
 				.prepareIndex(this.indexName, counterName, tempKey)

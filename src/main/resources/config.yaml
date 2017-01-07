@@ -43,7 +43,7 @@ couterList:
   - dpi-1hour
   - mdn-day-data
   - domain-5min
-  - CGI-5min 
+ # - CGI-5min 
   - CGI-data-5min
   - CGI-domain-5min
   

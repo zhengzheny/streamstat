@@ -155,10 +155,10 @@ public class ConfigSingleton {
 
 		Map<String, Object> counters = (Map<String, Object>) this.configs.get(counterName);
 		if (counters != null) {
-			return (int)counters.getOrDefault("flushWaitTime", 30);
+			return (int)counters.getOrDefault("flushWaitTime", 60);
 		}
 		
-		return 30;
+		return 60;
 	}
 	
 	@SuppressWarnings("unchecked")

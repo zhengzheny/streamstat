@@ -42,6 +42,7 @@ public class Application {
 		}
 
 		int processId = SysUtils.getProcessID();
+		String ip = SysUtils.getLastIp();
 
 		for (AbstractCounter counter : counters) {
 			if (counter == null)
@@ -77,7 +78,7 @@ public class Application {
 				if (count.isFinished() || deltaTime > counter.getFlushTimeGap()) {
 					for (IFlush flush : counter.getFlushes()) {
 						flush.flush(counter.getName(), key,fieldValues, timeStamp,
-								count.getCnt(), processId);
+								count.getCnt(), processId,ip);
 					}
 					counter.getCounters().remove(key);
 				}

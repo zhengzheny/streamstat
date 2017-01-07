@@ -2,6 +2,8 @@ package com.gsta.bigdata.stream.utils;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
@@ -10,6 +12,19 @@ public class SysUtils {
 		RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
 
 		return Integer.valueOf(runtimeMXBean.getName().split("@")[0]).intValue();
+	}
+	
+	public static final String getLastIp(){
+		try {
+			InetAddress addr = InetAddress.getLocalHost();
+			String ip = addr.getHostAddress().toString();
+			ip = ip.substring(ip.lastIndexOf(".") + 1, ip.length());
+			return ip;
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+		
+		return "-1";
 	}
 
 	public static final long key2timestamp(String key) {

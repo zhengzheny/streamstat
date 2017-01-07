@@ -15,7 +15,7 @@ public class MDNDayDataRedisFlush extends SimpleRedisFlush {
 
 	@Override
 	public void flush(String counterName,String key, Map<String, String> fieldValues, String timeStamp,
-			long count, int processId) {
+			long count, int processId,String ip) {
 		if(fieldValues == null)  return;
 		
 		Jedis jedis = super.jedisPool.getResource();

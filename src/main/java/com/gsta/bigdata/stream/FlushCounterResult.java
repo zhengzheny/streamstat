@@ -13,10 +13,13 @@ public class FlushCounterResult implements Runnable {
 	private AbstractCounter counter;
 	final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private int processId;
+	private String ip;
 
 	public FlushCounterResult(AbstractCounter counter) {
 		this.counter = counter;
-		this.processId = SysUtils.getProcessID();
+		
+		this.processId = SysUtils.getProcessID() ;
+		this.ip = SysUtils.getLastIp();
 	}
 
 	@Override
@@ -27,7 +30,8 @@ public class FlushCounterResult implements Runnable {
 				break;
 			}
 			
-			//logger.info("flush " + counter.getName() + " record:" + counter.getCounters().size());
+			int flushCount = 0;
+			int counterSize = counter.getCounters().size();
 			// logger.info("begin flush counter:" + counter.getName());
 			for (Map.Entry<String, Count> mapEntry : counter.getCounters().entrySet()) {
 				String key = mapEntry.getKey();
@@ -57,9 +61,10 @@ public class FlushCounterResult implements Runnable {
 				if (count.isFinished() || deltaTime > counter.getFlushTimeGap()) {
 					for (IFlush flush : counter.getFlushes()) {
 						flush.flush(counter.getName(), key,fieldValues, timeStamp,
-								count.getCnt(), processId);
+								count.getCnt(), processId,ip);
 					}
 					counter.getCounters().remove(key);
+					flushCount++;
 				}
 
 				/*
@@ -71,11 +76,13 @@ public class FlushCounterResult implements Runnable {
 				if (continuousFlushes != null) {
 					for (IFlush flush : continuousFlushes) {
 						flush.flush(counter.getName(),key, fieldValues, timeStamp,
-								count.getCnt(), processId);
+								count.getCnt(), processId,ip);
 					}
 				}
 			}// end for results
 
+			logger.info("flush " + counter.getName() + " counterSize="
+					+ counterSize + ",flushCount=" + flushCount);
 			// sleep flushWaitTime second
 			try {
 				Thread.sleep(counter.getFlushWaitTime() * 1000L);
