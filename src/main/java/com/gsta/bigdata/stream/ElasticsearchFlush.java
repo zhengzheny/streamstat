@@ -65,6 +65,7 @@ public class ElasticsearchFlush implements IFlush {
 		map.put("timeStamp",this.formatTimestamp(timeStamp));
 		map.put("count", count);
 		map.put("processId", processId);
+		map.put("ip", ip);
 		map.put("counterName", counterName);
 		String tempKey = key + Constants.KEY_DELIMITER + processId + 
 				Constants.KEY_DELIMITER + ip;
@@ -74,10 +75,12 @@ public class ElasticsearchFlush implements IFlush {
 				.setSource(map).get();
 		if (response.status() == RestStatus.CREATED) {
 			logger.info("counterName=" + counterName +
+					",key=" + key +
 					",keyFields=" + fieldValues.toString() +
 					",timeStamp=" + timeStamp + 
 					",count=" + count + 
 					",processId=" + processId + 
+					",ip=" + ip +
 					" create index success...");
 		}else{
 			logger.warn(response.toString());
