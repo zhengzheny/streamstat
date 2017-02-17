@@ -5,7 +5,6 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
@@ -18,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.gsta.bigdata.stream.utils.ConfigSingleton;
 import com.gsta.bigdata.stream.utils.Constants;
 
+@Deprecated
 public class ElasticsearchFlush implements IFlush {
 	final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private TransportClient client;
@@ -70,12 +70,16 @@ public class ElasticsearchFlush implements IFlush {
 		String tempKey = key + Constants.KEY_DELIMITER + processId + 
 				Constants.KEY_DELIMITER + ip;
 		
+		long t = System.currentTimeMillis();
+		String s = String.valueOf(t);
+		tempKey += Constants.KEY_DELIMITER + s.substring(s.length()-5);
+		
 		IndexResponse response = client
 				.prepareIndex(this.indexName, counterName, tempKey)
 				.setSource(map).get();
 		if (response.status() == RestStatus.CREATED) {
 			logger.info("counterName=" + counterName +
-					",key=" + key +
+					",key=" + tempKey +
 					",keyFields=" + fieldValues.toString() +
 					",timeStamp=" + timeStamp + 
 					",count=" + count + 

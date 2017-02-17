@@ -1,9 +1,6 @@
 package com.gsta.bigdata.stream.utils;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -19,9 +16,8 @@ public class ConfigSingleton {
 	private static ConfigSingleton singleton = new ConfigSingleton();
 	private Map<String, Object> configs;
 
-	@SuppressWarnings("unchecked")
 	private ConfigSingleton() {
-		URL url = Thread.currentThread().getContextClassLoader().getResource("config.yaml");
+		/*URL url = Thread.currentThread().getContextClassLoader().getResource("config.yaml");
 		//URL url = Thread.currentThread().getContextClassLoader().getResource("config-local.yaml");
 		if (url != null) {
 			try {
@@ -33,7 +29,21 @@ public class ConfigSingleton {
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
+		}*/
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void init(String configFile){
+		try {
+			InputStream inputStream =  FileUtils.getInputFile(configFile);
+			if (inputStream != null) {
+				Yaml yaml = new Yaml();
+				this.configs = (Map<String, Object>) yaml.load(inputStream);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+			
 	}
 
 	@SuppressWarnings("unchecked")
@@ -53,6 +63,15 @@ public class ConfigSingleton {
 			props.put(StreamsConfig.CLIENT_ID_CONFIG,kafkaConfig.get("client_id"));
 			props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,kafkaConfig.get("auto_offset_reset"));
 			props.put(StreamsConfig.TIMESTAMP_EXTRACTOR_CLASS_CONFIG,kafkaConfig.get("timestamp_extractor"));
+			props.put(StreamsConfig.STATE_DIR_CONFIG, kafkaConfig.get("state_dir"));
+			props.put(StreamsConfig.BUFFERED_RECORDS_PER_PARTITION_CONFIG,kafkaConfig.get("buffered.records.per.partition"));
+			props.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG,kafkaConfig.get("num.stream.threads"));
+			props.put(StreamsConfig.POLL_MS_CONFIG,kafkaConfig.get("poll.ms"));
+			props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG,kafkaConfig.get("cache.max.bytes.buffering"));
+			props.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG,kafkaConfig.get("max.partition.fetch.bytes"));
+			props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG,kafkaConfig.get("max.poll.records"));
+			props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG,kafkaConfig.get("session.timeout.ms"));
+			props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG,kafkaConfig.get("heartbeat.interval.ms"));
 		}
 
 		return props;

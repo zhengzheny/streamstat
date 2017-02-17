@@ -74,14 +74,14 @@ public class Application {
 
 				Count count = mapEntry.getValue();
 				// after flush time gap of counter,flush to disk and remove it from memory
-				long deltaTime = System.currentTimeMillis() - count.getTimestamp();
-				if (count.isFinished() || deltaTime > counter.getFlushTimeGap()) {
+				//long deltaTime = System.currentTimeMillis() - count.getTimestamp();
+				//if (deltaTime > counter.getFlushTimeGap()) {
 					for (IFlush flush : counter.getFlushes()) {
 						flush.flush(counter.getName(), key,fieldValues, timeStamp,
 								count.getCnt(), processId,ip);
 					}
 					counter.getCounters().remove(key);
-				}
+				//}
 			}
 		}// end for counters
 		logger.info("finishing flush all counters");
@@ -108,8 +108,13 @@ public class Application {
 	}
 	
 	public static void main(String[] args) {
-		AbstractCounter[] counters = getCounters();
+		if(args.length < 1){
+			System.out.println("usage:" + Application.class.getSimpleName() + " configFile");
+			System.exit(-1);
+		}
 		
+		ConfigSingleton.getInstance().init(args[0]);
+		AbstractCounter[] counters = getCounters();
 		List<String> sourceFields = ConfigSingleton.getInstance().getSourceFields();
 		String sourceDelimiter = ConfigSingleton.getInstance().getSourceDelimiter();	
 		

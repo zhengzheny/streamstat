@@ -58,7 +58,7 @@ public class FlushCounterResult implements Runnable {
 				Count count = mapEntry.getValue();
 				// after flush time gap of counter,flush to disk and remove it from memory
 				long deltaTime = System.currentTimeMillis() - count.getTimestamp();
-				if (count.isFinished() || deltaTime > counter.getFlushTimeGap()) {
+				if (deltaTime > counter.getFlushTimeGap()) {
 					for (IFlush flush : counter.getFlushes()) {
 						flush.flush(counter.getName(), key,fieldValues, timeStamp,
 								count.getCnt(), processId,ip);

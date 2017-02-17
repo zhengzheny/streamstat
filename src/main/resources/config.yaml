@@ -1,11 +1,20 @@
 kafkaCluster:
-  app_id: noceStream0106
+  app_id: noceStream20170217
   brokers: XTH04-Sugoni840-8:9091,XTH04-Sugoni840-8:9092,XTH04-Sugoni840-9:9093,XTH04-Sugoni840-9:9094,XTH04-Sugoni840-10:9095,XTH04-Sugoni840-10:9096,XTH04-Sugoni840-11:9097,XTH04-Sugoni840-11:9098,XTH04-Sugoni840-12:9099,XTH04-Sugoni840-12:9091
   client_id: noce
   zookeeper: XTH04-Sugoni840-10:2182,XTH04-Sugoni840-11:2182,XTH04-Sugoni840-12:2182/kafkaCluster
   topic: 4GDPI
   auto_offset_reset: latest
   timestamp_extractor: org.apache.kafka.streams.processor.WallclockTimestampExtractor
+  state_dir: STATE_DIR
+  buffered.records.per.partition: 2000
+  num.stream.threads: 1
+  poll.ms: 100
+  cache.max.bytes.buffering: 10485760
+  max.partition.fetch.bytes: 2097152
+  max.poll.records: 200
+  session.timeout.ms: 60000
+  heartbeat.interval.ms: 20000
 
 bloomFilter:
   filter: true
@@ -209,3 +218,9 @@ elasticsearch:
       - XTH04-Sugoni840-10
   port: 9300
   index.name: 4gdpi
+  batchRecord: 1000
+  #unit is M
+  batchSize: 5   
+  numThread: 10
+  #unit is second
+  flushTime: 120

@@ -1,9 +1,29 @@
-count=`/home/noce/jdk1.8.0_45/bin/jps -l | grep App | wc -l`
-if [ $count -lt 10 ]
+if [ $# -lt 1 ]
 then
-		for((i=1;i<=10;i++))
+  echo "usage:bin/startStream.sh configFile"
+  exit -1
+fi
+
+streamAgentCount=10
+configFile=$1
+configPath=./conf/instance
+
+if [ ! -d "$configPath" ]
+then
+  mkdir -p $configPath
+else
+  rm -f $configPath/*
+fi
+
+count=`jps -l | grep App | wc -l`
+if [ $count -lt $streamAgentCount ]
+then
+  for((i=1;i<=$streamAgentCount;i++))
     do
-        nohup bin/etl-kafkastream.sh  &
+    config=$configPath/config$i.yaml
+    path="/data/kafkastream/state/config$i/"
+        sed "s:STATE_DIR:${path}:g" $configFile > $config
+        nohup bin/etl-kafkastream.sh $config $i &
         echo "start $i  stream agent..."
     done
 fi
