@@ -11,8 +11,7 @@ public class FlushesFactory {
 		} else if (Constants.FLUSH_MDN_DAY_REDIS.equals(name)) {
 			return new MDNDayDataRedisFlush();
 		} else if (Constants.FLUSH_ELASTICSEARCH.equals(name)) {
-			//return new ElasticsearchFlush();
-			return new BatchElasticsearchFlush();
+			return new ElasticsearchFlush();
 		}
 
 		// default is console flush

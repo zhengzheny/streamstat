@@ -39,11 +39,12 @@ public class CGIData5MinCounter extends AbstractCounter {
 			return;
 		}
 
-		String ts = WindowTime.get5min(timeStamp).getTimeStamp();
+		WindowTime.WinTime winTime = WindowTime.get5min(timeStamp);
+		String ts = winTime.getTimeStamp();
 		String key = CGI + Constants.KEY_DELIMITER + ts;
 		long data = inputOctets + outputOctets;
 
-		super.getCounters().computeIfAbsent(key, k -> new Count()).inc(data);
+		super.getCounters().computeIfAbsent(key, k -> new Count(winTime.getTimeInMillis())).inc(data);
 	}
 
 	@Override

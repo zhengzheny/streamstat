@@ -19,6 +19,7 @@ public class Constants {
 	public final static String FLUSH_ELASTICSEARCH = "elasticsearch";
 	
 	public final static String KEY_DELIMITER = "-";
+	public final static String REQUEST_KEY_DELIMITER = "#";
 	
 	public final static String TIME_GAP_5_MIN = "5min";
 	public final static String TIME_GAP_1_HOUR = "1hour";

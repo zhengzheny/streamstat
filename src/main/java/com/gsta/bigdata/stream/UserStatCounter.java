@@ -53,7 +53,7 @@ public class UserStatCounter extends AbstractCounter {
 			WindowTime.WinTime winTime = this.getWindowKey(timeStamp);
 			if (winTime != null) {
 				super.getCounters().computeIfAbsent(winTime.getTimeStamp(),
-								k -> new Count()).inc();
+								k -> new Count(winTime.getTimeInMillis())).inc();
 			}
 		}
 	}

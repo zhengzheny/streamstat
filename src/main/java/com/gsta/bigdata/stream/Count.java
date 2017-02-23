@@ -7,8 +7,9 @@ public class Count implements Serializable{
 	private long cnt = 0;
 	private long timestamp;
 	
-	public Count(){
-		this.timestamp = System.currentTimeMillis();
+	public Count(long timestamp){
+		//this.timestamp = System.currentTimeMillis();
+		this.timestamp = timestamp;
 	}
 
 	public long inc() {

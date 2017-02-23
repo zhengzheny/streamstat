@@ -28,9 +28,9 @@ public class CGIUser5MinCounter extends AbstractCounter {
 				super.getBloomFilterName(), timeStamp, mdn);
 		if (!isExist) {
 			String key = valueData.get(super.getKeyFields()[0]);
-			key = key + Constants.KEY_DELIMITER
-					+ WindowTime.get5min(timeStamp).getTimeStamp();
-			super.getCounters().computeIfAbsent(key, k -> new Count()).inc();
+			WindowTime.WinTime winTime = WindowTime.get5min(timeStamp);
+			key = key + Constants.KEY_DELIMITER + winTime.getTimeStamp();
+			super.getCounters().computeIfAbsent(key, k -> new Count(winTime.getTimeInMillis())).inc();
 		}
 	}
 

@@ -37,11 +37,12 @@ public class MDNDayDataCounter extends AbstractCounter {
 			return;
 		}
 		
-		String ts = WindowTime.get1day(timeStamp).getTimeStamp();
+		WindowTime.WinTime winTime = WindowTime.get1day(timeStamp);
+		String ts = winTime.getTimeStamp();
 		String key = mdn + Constants.KEY_DELIMITER + ts;
 	
 		long mdnData = inputOctets + outputOctets;
-		super.getCounters().computeIfAbsent(key, k -> new Count()).inc(mdnData);
+		super.getCounters().computeIfAbsent(key, k -> new Count(winTime.getTimeInMillis())).inc(mdnData);
 	}
 
 	@Override

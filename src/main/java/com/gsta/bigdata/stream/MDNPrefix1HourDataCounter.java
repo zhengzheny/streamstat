@@ -43,11 +43,12 @@ public class MDNPrefix1HourDataCounter extends AbstractCounter {
 			return;
 		}
 
-		String ts = WindowTime.get1hour(timeStamp).getTimeStamp();
+		WindowTime.WinTime winTime = WindowTime.get1hour(timeStamp);
+		String ts = winTime.getTimeStamp();
 		String key = parseMdnPrefix(mdn,shortmdnprefix) + Constants.KEY_DELIMITER + ts;
 		long mdnData = inputOctets + outputOctets;
 
-		super.getCounters().computeIfAbsent(key, k -> new Count()).inc(mdnData);
+		super.getCounters().computeIfAbsent(key, k -> new Count(winTime.getTimeInMillis())).inc(mdnData);
 	}
 
 	@Override

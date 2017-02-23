@@ -1,63 +1,27 @@
 package com.gsta.bigdata.stream;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.elasticsearch.rest.RestStatus;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gsta.bigdata.stream.utils.ConfigSingleton;
 import com.gsta.bigdata.stream.utils.Constants;
 
-@Deprecated
 public class ElasticsearchFlush implements IFlush {
 	final Logger logger = LoggerFactory.getLogger(this.getClass());
-	private TransportClient client;
-	private final static String CLUSTER_NAME = "cluster.name";
-	private final static String SNIFF = "client.transport.sniff";
-	private String indexName;
 	private final static String DAY_DELI = "-";
 	private final static String HOUR_DELI = ":";
 	
-	@SuppressWarnings("unchecked")
 	public ElasticsearchFlush() {
-		String clusterName = (String) ConfigSingleton.getInstance()
-				.getElasticsearchConf().get(CLUSTER_NAME);
-		boolean sniff = (boolean) ConfigSingleton.getInstance()
-				.getElasticsearchConf().get(SNIFF);
-
-		Settings settings = Settings.builder().put(CLUSTER_NAME, clusterName)
-				.put(SNIFF, sniff).build();
-
-		this.client = new PreBuiltTransportClient(settings);
-		int port = (int) ConfigSingleton.getInstance().getElasticsearchConf().get("port");
-		List<String> servers = (List<String>) ConfigSingleton.getInstance()
-				.getElasticsearchConf().get("cluster.nodes");
-		for (String server : servers) {
-			try {
-				this.client.addTransportAddress(new InetSocketTransportAddress(
-						InetAddress.getByName(server), port));
-			} catch (UnknownHostException e) {
-				logger.error("init elasticsearch occur error:" + e.toString());
-			}
-		}// end for
 		
-		this.indexName = (String) ConfigSingleton.getInstance()
-				.getElasticsearchConf().get("index.name");
 	}
-	
+
 	@Override
-	public void flush(String counterName,String key, Map<String, String> fieldValues, String timeStamp,
-			long count, int processId,String ip) {
-		Map<String,Object> map = new HashMap<String,Object>();
+	public void flush(String counterName, String key,
+			Map<String, String> fieldValues, String timeStamp, long count,
+			int processId, String ip) {
+		HashMap<String,Object> map = new HashMap<String,Object>();
 		
 		if(fieldValues != null && fieldValues.size() > 0)  {
 			map.putAll(fieldValues);
@@ -74,29 +38,16 @@ public class ElasticsearchFlush implements IFlush {
 		String s = String.valueOf(t);
 		tempKey += Constants.KEY_DELIMITER + s.substring(s.length()-5);
 		
-		IndexResponse response = client
-				.prepareIndex(this.indexName, counterName, tempKey)
-				.setSource(map).get();
-		if (response.status() == RestStatus.CREATED) {
-			logger.info("counterName=" + counterName +
-					",key=" + tempKey +
-					",keyFields=" + fieldValues.toString() +
-					",timeStamp=" + timeStamp + 
-					",count=" + count + 
-					",processId=" + processId + 
-					",ip=" + ip +
-					" create index success...");
-		}else{
-			logger.warn(response.toString());
-		}
+		String reqKey = counterName + Constants.REQUEST_KEY_DELIMITER + tempKey;
+		ESCacheSingleton.getSingleton().addRequest(reqKey, map);
 	}
 
 	@Override
 	public void close() {
-		this.client.close();
+		
 	}
-	
-	public String formatTimestamp(String key) {
+
+	private String formatTimestamp(String key) {
 		if (key != null) {
 			String ret = null;
 			switch (key.length()) {

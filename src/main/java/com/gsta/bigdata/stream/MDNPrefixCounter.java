@@ -57,7 +57,7 @@ public class MDNPrefixCounter extends AbstractCounter {
 			if (winTime != null) {
 				String key = super.parseMdnPrefix(mdn,shortmdnprefix)
 						+ Constants.KEY_DELIMITER + winTime.getTimeStamp();
-				super.getCounters().computeIfAbsent(key, k -> new Count()).inc();
+				super.getCounters().computeIfAbsent(key, k -> new Count(winTime.getTimeInMillis())).inc();
 			}
 		}
 	}

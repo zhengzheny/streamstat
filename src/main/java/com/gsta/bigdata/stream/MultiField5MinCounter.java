@@ -29,8 +29,9 @@ public class MultiField5MinCounter extends AbstractCounter {
 			key += valueData.get(field);
 			key += Constants.KEY_DELIMITER;
 		}
-		key += WindowTime.get5min(timeStamp).getTimeStamp();
-		super.getCounters().computeIfAbsent(key, k -> new Count()).inc();
+		WindowTime.WinTime winTime = WindowTime.get5min(timeStamp);
+		key += winTime.getTimeStamp();
+		super.getCounters().computeIfAbsent(key, k -> new Count(winTime.getTimeInMillis())).inc();
 	}
 
 	@Override

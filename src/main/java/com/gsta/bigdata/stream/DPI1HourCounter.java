@@ -23,8 +23,9 @@ public class DPI1HourCounter extends AbstractCounter {
 			return;
 		}
 		
-		String key =  WindowTime.get1hour(timeStamp).getTimeStamp();
-		super.getCounters().computeIfAbsent(key, k -> new Count()).inc();
+		WindowTime.WinTime winTime = WindowTime.get1hour(timeStamp);
+		String key =  winTime.getTimeStamp();
+		super.getCounters().computeIfAbsent(key, k -> new Count(winTime.getTimeInMillis())).inc();
 	}
 
 	@Override

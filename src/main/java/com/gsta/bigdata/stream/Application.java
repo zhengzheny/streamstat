@@ -76,12 +76,13 @@ public class Application {
 				// after flush time gap of counter,flush to disk and remove it from memory
 				//long deltaTime = System.currentTimeMillis() - count.getTimestamp();
 				//if (deltaTime > counter.getFlushTimeGap()) {
+				if(count.getCnt() > 0){
 					for (IFlush flush : counter.getFlushes()) {
 						flush.flush(counter.getName(), key,fieldValues, timeStamp,
 								count.getCnt(), processId,ip);
 					}
 					counter.getCounters().remove(key);
-				//}
+				}
 			}
 		}// end for counters
 		logger.info("finishing flush all counters");
@@ -156,9 +157,16 @@ public class Application {
 		streams.start();
 
 		//every counter has one thread to flush
+		Thread[] counterFlushthreads = new Thread[counters.length];
 		for(int i=0;i<counters.length;i++){
-			new Thread(new FlushCounterResult(counters[i])).start();
+			counterFlushthreads[i] = new Thread(new FlushCounterResult(counters[i]));
+			counterFlushthreads[i].start();
 		}
+		
+		//Elasticsearch writer thread
+		ESWriterThread esWriter = new ESWriterThread();
+		Thread  esWriterThread = new Thread(esWriter);
+		esWriterThread.start();
 		
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
@@ -166,6 +174,12 @@ public class Application {
 					logger.info("The JVM Hook is execute...");
 					//close kafka stream
 					streams.close();
+					
+					for(int i=0;i<counters.length;i++){
+						counterFlushthreads[i].interrupt();
+						counterFlushthreads[i].join(1000);
+					}
+					logger.info("stop flush result thread...");
 					
 					//flush counter result
 					flushCounters(counters);
@@ -176,6 +190,11 @@ public class Application {
 							flush.close();
 						}
 					}
+					
+					esWriterThread.join(1000);
+					esWriter.close();
+					
+					logger.info("kafka stream agent stoped...");
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

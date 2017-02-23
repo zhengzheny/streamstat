@@ -72,6 +72,10 @@ public class ConfigSingleton {
 			props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG,kafkaConfig.get("max.poll.records"));
 			props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG,kafkaConfig.get("session.timeout.ms"));
 			props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG,kafkaConfig.get("heartbeat.interval.ms"));
+			props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG,kafkaConfig.get("commit.interval.ms"));
+			props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG,kafkaConfig.get("max.poll.interval.ms"));
+			//props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, kafkaConfig.get("enable.auto.commit"));
+			//props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, kafkaConfig.get("auto.commit.interval.ms"));
 		}
 
 		return props;
