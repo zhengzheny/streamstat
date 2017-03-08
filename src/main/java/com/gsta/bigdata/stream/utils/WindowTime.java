@@ -1,5 +1,7 @@
 package com.gsta.bigdata.stream.utils;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class WindowTime {	
@@ -129,11 +131,35 @@ public class WindowTime {
 	}
 	
 	public static void main(String[] args) {
-		long s = System.currentTimeMillis();
-		System.out.println(WindowTime.get1min(s));
-		System.out.println(WindowTime.get5min(s));
-		System.out.println(WindowTime.get10min(s));
-		System.out.println(WindowTime.get1hour(s));
-		System.out.println(WindowTime.get1day(s));
+		//long s = System.currentTimeMillis();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");	
+		
+		try {
+			String ts = "20170306103959";
+			long l = sdf.parse(ts).getTime();
+			
+			System.out.println("ts=" + ts + " " +WindowTime.get5min(l));
+			ts = "20170306104000";
+			l = sdf.parse(ts).getTime();
+			System.out.println("ts=" + ts + " " +WindowTime.get5min(l));
+			ts = "20170306104001";
+			l = sdf.parse(ts).getTime();
+			System.out.println("ts=" + ts + " " +WindowTime.get5min(l));
+			ts = "20170306104101";
+			l = sdf.parse(ts).getTime();
+			System.out.println("ts=" + ts + " " +WindowTime.get5min(l));
+			ts = "20170306103559";
+			l = sdf.parse(ts).getTime();
+			System.out.println("ts=" + ts + " " +WindowTime.get5min(l));
+			ts = "20170306103500";
+			l = sdf.parse(ts).getTime();
+			System.out.println("ts=" + ts + " " +WindowTime.get5min(l));
+			ts = "20170306103450";
+			l = sdf.parse(ts).getTime();
+			System.out.println("ts=" + ts + " " +WindowTime.get5min(l));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		
 	}
 }

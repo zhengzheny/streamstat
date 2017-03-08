@@ -8,8 +8,8 @@ public class Count implements Serializable{
 	private long timestamp;
 	
 	public Count(long timestamp){
-		//this.timestamp = System.currentTimeMillis();
-		this.timestamp = timestamp;
+		this.timestamp = System.currentTimeMillis();
+		//this.timestamp = timestamp;
 	}
 
 	public long inc() {
@@ -17,7 +17,8 @@ public class Count implements Serializable{
 	}
 
 	public long inc(long v) {
-		cnt = +v;
+		//cnt = +v;
+		cnt += v;
 		return v;
 	}
 

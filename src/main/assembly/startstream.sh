@@ -1,10 +1,10 @@
-if [ $# -lt 1 ]
+if [ $# -lt 2 ]
 then
-  echo "usage:bin/startStream.sh configFile"
+  echo "usage:bin/startStream.sh configFile agentCount"
   exit -1
 fi
 
-streamAgentCount=10
+streamAgentCount=$2
 configFile=$1
 configPath=./conf/instance
 

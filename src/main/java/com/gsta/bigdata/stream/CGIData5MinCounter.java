@@ -51,5 +51,4 @@ public class CGIData5MinCounter extends AbstractCounter {
 	public long getFlushTimeGap() {
 		return this.flushTimeGap;
 	}
-
 }

@@ -39,7 +39,10 @@ public class ElasticsearchFlush implements IFlush {
 		tempKey += Constants.KEY_DELIMITER + s.substring(s.length()-5);
 		
 		String reqKey = counterName + Constants.REQUEST_KEY_DELIMITER + tempKey;
-		ESCacheSingleton.getSingleton().addRequest(reqKey, map);
+		
+		map.put("reqkey", reqKey);
+		
+		CounterCacheSingleton.getSingleton().addRequest(reqKey, map);
 	}
 
 	@Override

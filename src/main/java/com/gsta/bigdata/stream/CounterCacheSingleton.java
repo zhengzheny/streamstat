@@ -4,11 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ESCacheSingleton {
-	private final static ESCacheSingleton singleton = new ESCacheSingleton();
+public class CounterCacheSingleton {
+	private final static CounterCacheSingleton singleton = new CounterCacheSingleton();
 	private Map<String, HashMap<String,Object>> requests = new ConcurrentHashMap<String, HashMap<String,Object>>();
 
-	private ESCacheSingleton() {
+	private CounterCacheSingleton() {
 		
 	}
 	
@@ -22,7 +22,7 @@ public class ESCacheSingleton {
 		return requests;
 	}
 
-	public static ESCacheSingleton getSingleton() {
+	public static CounterCacheSingleton getSingleton() {
 		return singleton;
 	}
 }

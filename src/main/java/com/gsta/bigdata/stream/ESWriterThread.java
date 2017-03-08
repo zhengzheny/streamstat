@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import com.gsta.bigdata.stream.utils.ConfigSingleton;
 import com.gsta.bigdata.stream.utils.Constants;
 
+@Deprecated
 public class ESWriterThread implements Runnable{
 	final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private String indexName;
@@ -54,7 +55,7 @@ public class ESWriterThread implements Runnable{
 		int batchRecord = (int) ConfigSingleton.getInstance().getElasticsearchConf().get("batchRecord");
 		int batchSize = (int) ConfigSingleton.getInstance().getElasticsearchConf().get("batchSize");
 		int numThread = (int) ConfigSingleton.getInstance().getElasticsearchConf().get("numThread");
-		//int flushTime = (int) ConfigSingleton.getInstance().getElasticsearchConf().get("flushTime");
+		int flushTime = (int) ConfigSingleton.getInstance().getElasticsearchConf().get("flushTime");
 		
 		bulkProcessor = BulkProcessor.builder(client, new BulkProcessor.Listener() {
 			@Override
@@ -76,7 +77,7 @@ public class ESWriterThread implements Runnable{
 		}).setBulkActions(batchRecord)                                 // bulk record
 		.setBulkSize(new ByteSizeValue(batchSize, ByteSizeUnit.MB))     // bulk size
 		.setConcurrentRequests(numThread)                              //concurrent thread size
-		//.setFlushInterval(TimeValue.timeValueSeconds(flushTime))       //flush time 
+		.setFlushInterval(TimeValue.timeValueSeconds(flushTime))       //flush time 
 		.build();
 		
 		this.indexName = (String) ConfigSingleton.getInstance().getElasticsearchConf().get("index.name");
@@ -86,9 +87,10 @@ public class ESWriterThread implements Runnable{
 	@Override
 	public void run() {
 		while (true) {
-			Map<String, HashMap<String, Object>> requests = ESCacheSingleton.getSingleton().getRequests();
+			Map<String, HashMap<String, Object>> requests = CounterCacheSingleton.getSingleton().getRequests();
 			int counterSize = requests.size();
 			int flushCount = 0;
+			logger.info("elasticsearch requests size=" + counterSize);
 			
 			for (Map.Entry<String, HashMap<String, Object>> mapEntry : requests.entrySet()) {
 				String reqKey = mapEntry.getKey();

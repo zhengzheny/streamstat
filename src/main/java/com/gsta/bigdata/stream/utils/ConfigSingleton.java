@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsConfig;
 import org.yaml.snakeyaml.Yaml;
@@ -52,32 +51,14 @@ public class ConfigSingleton {
 
 		Properties props = new Properties();
 
-		Map<String, Object> kafkaConfig = (Map<String, Object>) this.configs.get("kafkaCluster");
-
-		if (kafkaConfig != null) {
-			props.put(StreamsConfig.APPLICATION_ID_CONFIG,kafkaConfig.get("app_id"));
-			props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG,kafkaConfig.get("brokers"));
-			props.put(StreamsConfig.ZOOKEEPER_CONNECT_CONFIG,kafkaConfig.get("zookeeper"));
+		Map<String, String> kafkaConfig = (Map<String, String>) this.configs.get("kafkaCluster");
+		for(Map.Entry<String, String> entry:kafkaConfig.entrySet()){
+			props.put(entry.getKey(), entry.getValue());
+			
 			props.put(StreamsConfig.KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
 			props.put(StreamsConfig.VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
-			props.put(StreamsConfig.CLIENT_ID_CONFIG,kafkaConfig.get("client_id"));
-			props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,kafkaConfig.get("auto_offset_reset"));
-			props.put(StreamsConfig.TIMESTAMP_EXTRACTOR_CLASS_CONFIG,kafkaConfig.get("timestamp_extractor"));
-			props.put(StreamsConfig.STATE_DIR_CONFIG, kafkaConfig.get("state_dir"));
-			props.put(StreamsConfig.BUFFERED_RECORDS_PER_PARTITION_CONFIG,kafkaConfig.get("buffered.records.per.partition"));
-			props.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG,kafkaConfig.get("num.stream.threads"));
-			props.put(StreamsConfig.POLL_MS_CONFIG,kafkaConfig.get("poll.ms"));
-			props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG,kafkaConfig.get("cache.max.bytes.buffering"));
-			props.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG,kafkaConfig.get("max.partition.fetch.bytes"));
-			props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG,kafkaConfig.get("max.poll.records"));
-			props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG,kafkaConfig.get("session.timeout.ms"));
-			props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG,kafkaConfig.get("heartbeat.interval.ms"));
-			props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG,kafkaConfig.get("commit.interval.ms"));
-			props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG,kafkaConfig.get("max.poll.interval.ms"));
-			//props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, kafkaConfig.get("enable.auto.commit"));
-			//props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, kafkaConfig.get("auto.commit.interval.ms"));
 		}
-
+		
 		return props;
 	}
 
@@ -87,7 +68,19 @@ public class ConfigSingleton {
 		Map<String, Object> kafkaConfig = (Map<String, Object>) this.configs.get("kafkaCluster");
 
 		if (kafkaConfig != null) {
-			return (String) kafkaConfig.get("topic");
+			return (String) kafkaConfig.get("inputTopic");
+		}
+
+		return null;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public String getKafkaOutputTopic() {
+		Preconditions.checkNotNull(this.configs, "yaml config is null");
+		Map<String, Object> kafkaConfig = (Map<String, Object>) this.configs.get("kafkaCluster");
+
+		if (kafkaConfig != null) {
+			return (String) kafkaConfig.get("outputTopic");
 		}
 
 		return null;

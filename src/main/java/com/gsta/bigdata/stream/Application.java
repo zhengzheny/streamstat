@@ -164,9 +164,10 @@ public class Application {
 		}
 		
 		//Elasticsearch writer thread
-		ESWriterThread esWriter = new ESWriterThread();
-		Thread  esWriterThread = new Thread(esWriter);
-		esWriterThread.start();
+		//ESWriterThread esWriter = new ESWriterThread();
+		KafkaWriterThread writer = new KafkaWriterThread();
+		Thread  writerThread = new Thread(writer);
+		writerThread.start();
 		
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
@@ -191,8 +192,8 @@ public class Application {
 						}
 					}
 					
-					esWriterThread.join(1000);
-					esWriter.close();
+					writerThread.join(1000);
+					writer.close();
 					
 					logger.info("kafka stream agent stoped...");
 				} catch (Exception e) {
