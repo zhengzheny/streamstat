@@ -17,11 +17,8 @@ public class WindowBloomFilter {
 
 	public WindowBloomFilter(long timeGap, int expectedSize,
 			double falsePositiveProbability) {
-		this.kbf1 = new BlockBloomFilter("first bloom filter", expectedSize,
-				falsePositiveProbability);
-		
-		this.kbf2 = new BlockBloomFilter("second bloom filter", expectedSize,
-				falsePositiveProbability);
+		this.kbf1 = new BlockBloomFilter("first bloom filter", expectedSize,falsePositiveProbability);		
+		this.kbf2 = new BlockBloomFilter("second bloom filter", expectedSize,falsePositiveProbability);
 		this.timeGap = timeGap;
 	}
 
@@ -37,32 +34,32 @@ public class WindowBloomFilter {
 		long delta1 = timeStamp - this.kbf1.getTimeStamp();
 		long delta2 = timeStamp - this.kbf2.getTimeStamp();
 		if (this.kbf1.getCount() == -1) {
-			// the first time in first block
+			//首先考虑第一块分区,没有初始化情况
 			this.kbf1.switchKey(winTime);
 			this.kbf1.add(mdn);
 			logger.info(winTime + " use " + this.kbf1.getName());
 		} else if (delta1 >= 0 && delta1 <= this.timeGap) {
-			//still in first tme
+			//时间在第一块分区时间窗口内
 			this.kbf1.add(mdn);
 			logger.debug(mdn + " add " + this.kbf1.getName());
 		} else if (this.kbf2.getCount() == -1) {
-			//the first time in second block
+			//第一块分区用完后,考虑第二块分区没初始化情况
 			this.kbf2.switchKey(winTime);
 			this.kbf2.add(mdn);
 			logger.info(winTime + " use " + this.kbf2.getName());
 		} else if (delta2 >= 0 && delta2 <= this.timeGap) {
-			//still in second time
+			//时间在第二块分区时间窗口内
 			this.kbf2.add(mdn);
 			logger.debug(mdn + " add " + this.kbf2.getName());
 		} else if (delta1 < 0 && delta2 < 0
 				&& this.kbf1.getCount() != -1 && this.kbf2.getCount() != -1) {
-			//before the two window,do nothing,ignore
+			//如果时间在两个时间窗口前,忽略它
 			logger.debug(mdn + " before kbf1 and kbf2,so ignore ");
 			this.ignoreCount++;
 			if (this.ignoreCount % 1000 == 0)
 				logger.info("ignore " + this.ignoreCount + " message...");
 		} else {
-			// switch key,find the last key and replace
+			//时间在两块分区时间窗口后,把最久不用的分区清空置换出来,分配给新的分区
 			BlockBloomFilter kbf = this.getOldestKBF();
 			kbf.switchKey(winTime);
 			kbf.add(mdn);
@@ -103,12 +100,9 @@ public class WindowBloomFilter {
 		private long timeStamp;
 		private String name;
 
-		public BlockBloomFilter(String name, int expectedSize,
-				double falsePositiveProbability) {
+		public BlockBloomFilter(String name, int expectedSize,double falsePositiveProbability) {
 			this.name = name;
-			this.bloomFilter = new BloomFilter<String>(
-					falsePositiveProbability, expectedSize);
-			
+			this.bloomFilter = new BloomFilter<String>(falsePositiveProbability, expectedSize);
 			this.timeStamp = System.currentTimeMillis();
 		}
 

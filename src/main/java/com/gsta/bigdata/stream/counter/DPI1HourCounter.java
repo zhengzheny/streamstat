@@ -1,4 +1,4 @@
-package com.gsta.bigdata.stream;
+package com.gsta.bigdata.stream.counter;
 
 import java.util.Map;
 
@@ -25,7 +25,8 @@ public class DPI1HourCounter extends AbstractCounter {
 		
 		WindowTime.WinTime winTime = WindowTime.get1hour(timeStamp);
 		String key =  winTime.getTimeStamp();
-		super.getCounters().computeIfAbsent(key, k -> new Count(winTime.getTimeInMillis())).inc();
+		super.addCount(key);
+		super.addCountTimeStamp(key);
 	}
 
 	@Override

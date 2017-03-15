@@ -1,5 +1,10 @@
 package com.gsta.bigdata.stream;
 
+import com.gsta.bigdata.stream.flush.ConsoleFlush;
+import com.gsta.bigdata.stream.flush.ElasticsearchFlush;
+import com.gsta.bigdata.stream.flush.IFlush;
+import com.gsta.bigdata.stream.flush.MDNDayDataRedisFlush;
+import com.gsta.bigdata.stream.flush.SimpleRedisFlush;
 import com.gsta.bigdata.stream.utils.Constants;
 
 public class FlushesFactory {

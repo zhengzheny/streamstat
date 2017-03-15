@@ -3,6 +3,7 @@ package com.gsta.bigdata.stream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
+import com.gsta.bigdata.stream.counter.AbstractCounter;
 import com.gsta.bigdata.stream.utils.ConfigSingleton;
 
 public class CounterFactory {

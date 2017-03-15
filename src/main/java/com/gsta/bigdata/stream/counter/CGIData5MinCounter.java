@@ -1,4 +1,4 @@
-package com.gsta.bigdata.stream;
+package com.gsta.bigdata.stream.counter;
 
 import java.util.Map;
 
@@ -23,8 +23,7 @@ public class CGIData5MinCounter extends AbstractCounter {
 	}
 
 	@Override
-	public void add(String kafkaKey, Map<String, String> valueData, String mdn,
-			long timeStamp) {
+	public void add(String kafkaKey, Map<String, String> valueData, String mdn,long timeStamp) {
 		if (kafkaKey == null || valueData == null || super.getKeyFields() == null) {
 			return;
 		}
@@ -44,7 +43,10 @@ public class CGIData5MinCounter extends AbstractCounter {
 		String key = CGI + Constants.KEY_DELIMITER + ts;
 		long data = inputOctets + outputOctets;
 
-		super.getCounters().computeIfAbsent(key, k -> new Count(winTime.getTimeInMillis())).inc(data);
+		//增加计数器
+		super.addCount(key, data);
+		//增加计数器时间
+		super.addCountTimeStamp(key);
 	}
 
 	@Override

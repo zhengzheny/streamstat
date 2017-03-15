@@ -14,6 +14,7 @@
 			<outputDirectory>bin/</outputDirectory>
 			<includes>
 				<include>etl-kafkastream.sh</include>
+				<include>groupbyetl-kafkastream.sh</include>
 			</includes>
 			<fileMode>0755</fileMode>
 		</fileSet>
@@ -23,6 +24,8 @@
 			<includes>
 				<include>startstream.sh</include>
 				<include>stopstream.sh</include>
+				<include>groupbystartstream.sh</include>
+                <include>groupbystopstream.sh</include>
 			</includes>
 			<fileMode>0755</fileMode>
 		</fileSet>
@@ -46,10 +49,6 @@
 		<fileSet>
 			<directory>${basedir}/lib/</directory>
 			<outputDirectory>lib/</outputDirectory>
-			<excludes>
-				<exclude>kafka-clients-0.10.1.0.jar</exclude>
-				<exclude>kafka-streams-0.10.1.0.jar </exclude>
-			</excludes>
 		</fileSet>
 	</fileSets>	
 </assembly>

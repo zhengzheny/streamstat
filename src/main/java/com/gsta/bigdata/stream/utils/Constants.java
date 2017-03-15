@@ -18,10 +18,18 @@ public class Constants {
 	public final static String FLUSH_MDN_DAY_REDIS = "mdnDayRedis";
 	public final static String FLUSH_ELASTICSEARCH = "elasticsearch";
 	
-	public final static String KEY_DELIMITER = "-";
+	public final static String KEY_DELIMITER = "#";
 	public final static String REQUEST_KEY_DELIMITER = "#";
 	
 	public final static String TIME_GAP_5_MIN = "5min";
 	public final static String TIME_GAP_1_HOUR = "1hour";
 	public final static String TIME_GAP_1_DAY = "1day";
+	
+	public final static String OUTPUT_FIELD_TIMESTAMP = "timeStamp";
+	public final static String OUTPUT_FIELD_COUNT = "count";
+	public final static String OUTPUT_FIELD_PROCESSID = "processId";
+	public final static String OUTPUT_FIELD_IP = "ip";
+	public final static String OUTPUT_FIELD_COUNTER_NAME = "counterName";
+	public final static String OUTPUT_FIELD_KEY = "key";
+	public final static String OUTPUT_STREAM_NO = "streamCnt";
 }

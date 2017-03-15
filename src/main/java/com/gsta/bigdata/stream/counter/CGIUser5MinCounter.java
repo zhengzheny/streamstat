@@ -1,7 +1,8 @@
-package com.gsta.bigdata.stream;
+package com.gsta.bigdata.stream.counter;
 
 import java.util.Map;
 
+import com.gsta.bigdata.stream.BloomFilterFactory;
 import com.gsta.bigdata.stream.utils.ConfigSingleton;
 import com.gsta.bigdata.stream.utils.Constants;
 import com.gsta.bigdata.stream.utils.WindowTime;
@@ -18,8 +19,7 @@ public class CGIUser5MinCounter extends AbstractCounter {
 	}
 
 	@Override
-	public void add(String kafkaKey, Map<String, String> valueData, String mdn,
-			long timeStamp) {
+	public void add(String kafkaKey, Map<String, String> valueData, String mdn,long timeStamp) {
 		if (kafkaKey == null || valueData == null || super.getKeyFields() == null) {
 			return;
 		}
@@ -30,7 +30,9 @@ public class CGIUser5MinCounter extends AbstractCounter {
 			String key = valueData.get(super.getKeyFields()[0]);
 			WindowTime.WinTime winTime = WindowTime.get5min(timeStamp);
 			key = key + Constants.KEY_DELIMITER + winTime.getTimeStamp();
-			super.getCounters().computeIfAbsent(key, k -> new Count(winTime.getTimeInMillis())).inc();
+			
+			super.addCount(key);
+			super.addCountTimeStamp(key);
 		}
 	}
 

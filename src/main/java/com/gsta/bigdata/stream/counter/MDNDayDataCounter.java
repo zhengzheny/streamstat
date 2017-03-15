@@ -1,4 +1,4 @@
-package com.gsta.bigdata.stream;
+package com.gsta.bigdata.stream.counter;
 
 import java.util.Map;
 
@@ -42,7 +42,11 @@ public class MDNDayDataCounter extends AbstractCounter {
 		String key = mdn + Constants.KEY_DELIMITER + ts;
 	
 		long mdnData = inputOctets + outputOctets;
-		super.getCounters().computeIfAbsent(key, k -> new Count(winTime.getTimeInMillis())).inc(mdnData);
+		super.addCount(key, mdnData);
+		
+		//一天的时间按照当前系统时间的凌晨去算，过期时间还是按照24小时，这样已过零点，会把前一天数据清空
+		winTime = WindowTime.get1day(System.currentTimeMillis());
+		super.addCountTimeStamp(key, winTime.getTimeInMillis());
 	}
 
 	@Override

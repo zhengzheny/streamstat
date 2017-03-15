@@ -6,7 +6,10 @@ fi
 
 streamAgentCount=$2
 configFile=$1
-configPath=./conf/instance
+configPath=./conf/instance/counter
+
+curr=`date +"%Y%m%d"`
+applicationId="counter-$curr"
 
 if [ ! -d "$configPath" ]
 then
@@ -18,12 +21,13 @@ fi
 count=`jps -l | grep App | wc -l`
 if [ $count -lt $streamAgentCount ]
 then
-  for((i=1;i<=$streamAgentCount;i++))
+  ((c=$streamAgentCount-$count))
+  for((i=1;i<=$c;i++))
     do
-    config=$configPath/config$i.yaml
-    path="/data/kafkastream/state/config$i/"
+        config=$configPath/config$i.yaml
+        path="/data/kafkastream/counter/state/config$i/"
         sed "s:STATE_DIR:${path}:g" $configFile > $config
-        nohup bin/etl-kafkastream.sh $config $i &
+        nohup bin/etl-kafkastream.sh $config $applicationId $i &
         echo "start $i  stream agent..."
     done
 fi

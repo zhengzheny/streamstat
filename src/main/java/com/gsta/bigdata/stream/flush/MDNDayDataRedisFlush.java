@@ -1,4 +1,4 @@
-package com.gsta.bigdata.stream;
+package com.gsta.bigdata.stream.flush;
 
 import java.util.Map;
 
@@ -14,8 +14,7 @@ public class MDNDayDataRedisFlush extends SimpleRedisFlush {
 	}
 
 	@Override
-	public void flush(String counterName,String key, Map<String, String> fieldValues, String timeStamp,
-			long count, int processId,String ip) {
+	public void flush(String counterName,String key, Map<String, String> fieldValues, String timeStamp,long count) {
 		if(fieldValues == null)  return;
 		
 		Jedis jedis = super.jedisPool.getResource();
@@ -24,11 +23,11 @@ public class MDNDayDataRedisFlush extends SimpleRedisFlush {
 		String mdn = (String)fieldValues.values().toArray()[0];
 		jedis.hset(mdn, timeStamp, String.valueOf(count));
 		jedis.expire(mdn, super.keyExpire);
-		
-		logger.info("counterName=" + counterName + ",keyField=" + fieldValues.toString()
-				+ ",processId=" + processId + ",timeStamp=" + timeStamp
-				+ ",count=" + count + ",expireTime=" + super.keyExpire);
-	
+
+		logger.info("counterName={},keyField={},timeStamp={},count={},expireTime=",
+				counterName, fieldValues.toString(), timeStamp, count,
+				super.keyExpire);
+
 		jedis.close();
 	}
 

@@ -11,25 +11,29 @@ import com.gsta.bigdata.stream.utils.ConfigSingleton;
 import com.gsta.bigdata.stream.utils.Constants;
 import com.gsta.bigdata.stream.utils.WindowTime;
 
+/**
+ * 全局共享布隆过滤
+ * @author tianxq
+ *
+ */
 public class BloomFilterFactory {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private static BloomFilterFactory singleton = new BloomFilterFactory();
 	private Map<String, WindowBloomFilter> bloomFilters = new HashMap<String, WindowBloomFilter>();
 	private int expectedSize = 1000;
 	private double falsePositiveProbability = 0.1;
+	//是否开启布隆过滤开关
 	private boolean filter = false;
 	private List<String> names;
 
 	@SuppressWarnings("unchecked")
 	private BloomFilterFactory() {
-		Map<String, Object> conf = ConfigSingleton.getInstance()
-				.getBloomFilter();
+		Map<String, Object> conf = ConfigSingleton.getInstance().getBloomFilter();
 		if (conf != null) {
 			this.falsePositiveProbability = (double) conf.getOrDefault(
 					"falsePositiveProbability", 0.1);
 			this.expectedSize = (int) conf.getOrDefault("expectedSize", 1000);
 			this.filter = (boolean)conf.get("filter");
-
 			this.names = (List<String>) conf.get("name");
 		} else {
 			logger.error("invalid bloom filter config...");
@@ -47,6 +51,11 @@ public class BloomFilterFactory {
 		}
 	}
 
+	/**
+	 * 向布隆过滤器增加数据
+	 * @param timeStamp - 时间戳,根据时间戳找到对应的布隆过滤其
+	 * @param mdn - 电话号码
+	 */
 	public void add(long timeStamp,String mdn){
 		if(this.filter){
 			for (Map.Entry<String, WindowBloomFilter> mapEntry : this.bloomFilters.entrySet()) {
@@ -59,6 +68,13 @@ public class BloomFilterFactory {
 		}
 	}
 	
+	/**
+	 * 判断号码是否在过滤器中
+	 * @param filterName
+	 * @param timeStamp
+	 * @param mdn
+	 * @return
+	 */
 	public boolean isExist(String filterName,long timeStamp,String mdn){
 		WindowBloomFilter windowBloomFilter = this.bloomFilters.get(filterName);
 		if (windowBloomFilter != null) {

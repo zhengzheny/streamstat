@@ -61,26 +61,14 @@ public class ConfigSingleton {
 		
 		return props;
 	}
-
-	@SuppressWarnings("unchecked")
-	public String getKafkaInputTopic() {
-		Preconditions.checkNotNull(this.configs, "yaml config is null");
-		Map<String, Object> kafkaConfig = (Map<String, Object>) this.configs.get("kafkaCluster");
-
-		if (kafkaConfig != null) {
-			return (String) kafkaConfig.get("inputTopic");
-		}
-
-		return null;
-	}
 	
 	@SuppressWarnings("unchecked")
-	public String getKafkaOutputTopic() {
+	public String getDefaultKafkaOutputTopic() {
 		Preconditions.checkNotNull(this.configs, "yaml config is null");
 		Map<String, Object> kafkaConfig = (Map<String, Object>) this.configs.get("kafkaCluster");
 
 		if (kafkaConfig != null) {
-			return (String) kafkaConfig.get("outputTopic");
+			return (String) kafkaConfig.get("defaultOutputTopic");
 		}
 
 		return null;
@@ -117,38 +105,6 @@ public class ConfigSingleton {
 		return (List<String>) this.configs.get("couterList");
 	}
 	
-	@SuppressWarnings("unchecked")
-	public String[] getCounterFlushes(String counterName) {
-		Preconditions.checkNotNull(this.configs, "yaml config is null");
-
-		Map<String, Object> counters = (Map<String, Object>) this.configs.get(counterName);
-		if (counters != null) {
-			String flushes = (String)counters.get("flushes");
-			if(flushes != null){
-				return flushes.split(",",-1);
-			}
-		}
-		
-		//default is console
-		String[] ret = new String[1];
-		ret[0] = Constants.FLUSH_CONSOLE;
-		return ret;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public String[] getCounterContinuousFlushes(String counterName) {
-		Preconditions.checkNotNull(this.configs, "yaml config is null");
-
-		Map<String, Object> counters = (Map<String, Object>) this.configs.get(counterName);
-		if (counters != null) {
-			String flushes = (String)counters.get("continuousFlushes");
-			if(flushes != null){
-				return flushes.split(",",-1);
-			}
-		}
-		
-		return null;
-	}
 	
 	@SuppressWarnings("unchecked")
 	public double getCounterFlushTimeGapRatio(String counterName){
@@ -166,48 +122,12 @@ public class ConfigSingleton {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public int getCounterFlushWaitTime(String counterName){
-		Preconditions.checkNotNull(this.configs, "yaml config is null");
-
-		Map<String, Object> counters = (Map<String, Object>) this.configs.get(counterName);
-		if (counters != null) {
-			return (int)counters.getOrDefault("flushWaitTime", 60);
-		}
-		
-		return 60;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public String getCounterStatField(String counterName){
-		Preconditions.checkNotNull(this.configs, "yaml config is null");
-
-		Map<String, Object> counters = (Map<String, Object>) this.configs.get(counterName);
-		if (counters != null) {
-			return (String)counters.get("keyFields");
-		}
-		
-		return null;
-	}
-	
-	@SuppressWarnings("unchecked")
 	public String getCounterType(String counterName){
 		Preconditions.checkNotNull(this.configs, "yaml config is null");
 
 		Map<String, Object> counters = (Map<String, Object>) this.configs.get(counterName);
 		if (counters != null) {
 			return (String)counters.get("type");
-		}
-		
-		return null;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public String getCounterBloomFilter(String counterName){
-		Preconditions.checkNotNull(this.configs, "yaml config is null");
-
-		Map<String, Object> counters = (Map<String, Object>) this.configs.get(counterName);
-		if (counters != null) {
-			return (String)counters.get("bloomFilter");
 		}
 		
 		return null;

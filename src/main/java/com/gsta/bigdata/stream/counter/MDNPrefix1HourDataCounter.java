@@ -1,4 +1,4 @@
-package com.gsta.bigdata.stream;
+package com.gsta.bigdata.stream.counter;
 
 import java.util.Map;
 
@@ -48,7 +48,8 @@ public class MDNPrefix1HourDataCounter extends AbstractCounter {
 		String key = parseMdnPrefix(mdn,shortmdnprefix) + Constants.KEY_DELIMITER + ts;
 		long mdnData = inputOctets + outputOctets;
 
-		super.getCounters().computeIfAbsent(key, k -> new Count(winTime.getTimeInMillis())).inc(mdnData);
+		super.addCount(key, mdnData);
+		super.addCountTimeStamp(key);
 	}
 
 	@Override

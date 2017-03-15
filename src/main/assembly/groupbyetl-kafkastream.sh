@@ -1,16 +1,18 @@
 #!/bin/sh
 
-if [ $# -lt 3 ]
+if [ $# -lt 8 ]
 then
-  echo "usage:bin/etl-kafkastream.sh configFile application.id streamAgentNo"
+  echo "usage:bin/groupbyetl-kafkastream.sh configFile application.id inputTopic outputTopic counterstreamAgentNum flushTime no jmxport"
   exit -1
 fi
 
 BASEDIR=`dirname "$0"`/..
 cd $BASEDIR
 configFile=$1
-no=$3
-  
+inputTopic=$3
+no=$7
+jmxport=$8
+
 BIGDATA_CLASSPATH="$BASEDIR/conf:$BASEDIR/lib/"
 for i in "$BASEDIR"/lib/*.jar
 do
@@ -21,14 +23,14 @@ done
 RUN_CMD="java "
 RUN_CMD="$RUN_CMD -classpath \"$BIGDATA_CLASSPATH\""
 RUN_CMD="$RUN_CMD -Xmx16G -Xms16G "
-((port=19877+$no))
+((port=$jmxport+$no))
 RUN_CMD="$RUN_CMD -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false "
 RUN_CMD="$RUN_CMD -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.port=$port "
 
-logConf="./conf/instance/counter/log4j"$no".properties"
-sed "s:LOG_FILE:/data/kafkastream/counter/logs/stream${no}.log:g" ./conf/log4j.properties > $logConf
+logConf="./conf/instance/groupby/$inputTopic/log4j"$no".properties"
+sed "s:LOG_FILE:/data/kafkastream/groupby/$inputTopic/logs/stream${no}.log:g" ./conf/log4j.properties > $logConf
 RUN_CMD="$RUN_CMD -Dlog4j.configuration=file:$logConf "
-RUN_CMD="$RUN_CMD com.gsta.bigdata.stream.Application $@"
+RUN_CMD="$RUN_CMD com.gsta.bigdata.stream.GroupbyCounterApp $@"
   
 echo $RUN_CMD
 eval $RUN_CMD

@@ -21,6 +21,7 @@ import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gsta.bigdata.stream.flush.ElasticsearchFlush;
 import com.gsta.bigdata.stream.utils.ConfigSingleton;
 import com.gsta.bigdata.stream.utils.Constants;
 
@@ -87,14 +88,14 @@ public class ESWriterThread implements Runnable{
 	@Override
 	public void run() {
 		while (true) {
-			Map<String, HashMap<String, Object>> requests = CounterCacheSingleton.getSingleton().getRequests();
+			Map<String, Map<String, Object>> requests = CounterCacheSingleton.getSingleton().getRequests();
 			int counterSize = requests.size();
 			int flushCount = 0;
 			logger.info("elasticsearch requests size=" + counterSize);
 			
-			for (Map.Entry<String, HashMap<String, Object>> mapEntry : requests.entrySet()) {
+			for (Map.Entry<String, Map<String, Object>> mapEntry : requests.entrySet()) {
 				String reqKey = mapEntry.getKey();
-				HashMap<String, Object> map = mapEntry.getValue();
+				Map<String, Object> map = mapEntry.getValue();
 				
 				String[] fields = reqKey.split(Constants.REQUEST_KEY_DELIMITER,-1);
 				if(fields.length < 2){

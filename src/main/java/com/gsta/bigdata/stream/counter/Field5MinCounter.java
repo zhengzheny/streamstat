@@ -1,4 +1,4 @@
-package com.gsta.bigdata.stream;
+package com.gsta.bigdata.stream.counter;
 
 import java.util.Map;
 
@@ -27,7 +27,8 @@ public class Field5MinCounter extends AbstractCounter {
 		String key = valueData.get(super.getKeyFields()[0]);
 		WindowTime.WinTime winTime = WindowTime.get5min(timeStamp);
 		key += Constants.KEY_DELIMITER + winTime.getTimeStamp();
-		super.getCounters().computeIfAbsent(key, k -> new Count(winTime.getTimeInMillis())).inc();
+		super.addCount(key);
+		super.addCountTimeStamp(key);
 	}
 
 	@Override
