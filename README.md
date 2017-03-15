@@ -1,5 +1,7 @@
 # streamstat
+
 ==== 
+
 从kafka读取数据，并进行计数，把计数结果写入到kafka重新分区，基于新分区进行groupby操作，并把结果再次写入到kafka，通过logstash把最终统计结果写入到搜索引擎中。
 
 * <font face="黑体">步骤</font>
