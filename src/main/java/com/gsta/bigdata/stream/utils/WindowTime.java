@@ -135,8 +135,9 @@ public class WindowTime {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");	
 		
 		try {
-			String ts = "20170306103959";
+			String ts = "20170316101003";
 			long l = sdf.parse(ts).getTime();
+			//l=1489622401000L;
 			
 			System.out.println("ts=" + ts + " " +WindowTime.get5min(l));
 			ts = "20170306104000";

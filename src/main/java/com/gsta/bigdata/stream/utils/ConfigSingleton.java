@@ -163,9 +163,4 @@ public class ConfigSingleton {
 	public static ConfigSingleton getInstance() {
 		return singleton;
 	}
-	
-	public static void main(String[] args){
-		System.out.println(ConfigSingleton.getInstance().getSourceFields());
-		System.out.println(ConfigSingleton.getInstance().getSourceDelimiter());
-	}
 }

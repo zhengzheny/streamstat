@@ -32,11 +32,15 @@ kafkaCluster:
 bloomFilter:
   filter: true
   falsePositiveProbability: 0.1
-  expectedSize: 5000000
+  expectedSize: 1000000
   name:
       - 5min-bloomFilter
       - 1hour-bloomFilter
       - 1day-bloomFilter
+  size:
+    5min-bloomFilter: 12
+    1hour-bloomFilter: 6
+    1day-bloomFilter: 2
     
 sourceFields:
   fields: 
@@ -89,7 +93,7 @@ huawei4g-userstat-1hour:
 huawei4g-userstat-1day:
   type: com.gsta.bigdata.stream.counter.UserStatCounter
   flushes: elasticsearch
-  flushTimeGapRatio: 1.02
+  flushTimeGapRatio: 1.1
   bloomFilter: 1day-bloomFilter
   timeGap: 1day
 
@@ -112,7 +116,7 @@ userstat-mdnprefix-1hour:
 userstat-mdnprefix-1day:
   type: com.gsta.bigdata.stream.counter.MDNPrefixCounter
   flushes: elasticsearch
-  flushTimeGapRatio: 1.02
+  flushTimeGapRatio: 1.1
   bloomFilter: 1day-bloomFilter
   keyFields: mdnprefix  
   timeGap: 1day
@@ -138,7 +142,7 @@ userstat-shortmdnprefix-1hour:
 userstat-shortmdnprefix-1day:
   type: com.gsta.bigdata.stream.counter.MDNPrefixCounter
   flushes: elasticsearch
-  flushTimeGapRatio: 1.02
+  flushTimeGapRatio: 1.1
   bloomFilter: 1day-bloomFilter
   keyFields: mdnprefix  
   shortmdnprefix: true 
@@ -175,7 +179,7 @@ dpi-1hour:
 mdn-day-data:
   type: com.gsta.bigdata.stream.counter.MDNDayDataCounter
   flushes: elasticsearch
-  flushTimeGapRatio: 1.02
+  flushTimeGapRatio: 1.1
   continuousFlushes: mdnDayRedis
   #unit is second
   continuousFlushWaitTime: 120

@@ -39,17 +39,20 @@ public class GroupbyCounter {
 		if(counterCount != null){
 			//key=counterName+key
 			String key = counterCount.getValue(Constants.OUTPUT_FIELD_KEY);
+			if(key == null) return;
 			key = counterCount.getValue(Constants.OUTPUT_FIELD_COUNTER_NAME) + Constants.KEY_DELIMITER + key;
 			if(counters.containsKey(key)){
 				//如果已经存在，累积count值,并判断是否已经等到了所有进程的计数器,如果等齐了,发送出去,并从计数器中删除
 				GroupbyCount groupbyCount = counters.get(key);
-				groupbyCount.groupby(counterCount);
-				int cnt = groupbyCount.getCnt();
-				if(cnt >= this.streamAgentCnt){
-					CounterCacheSingleton.getSingleton().offer(groupbyCount);
-					counters.remove(key);
-					countersTimeStamp.remove(key);
-					this.flushCount.incrementAndGet();
+				if(groupbyCount != null){
+					groupbyCount.groupby(counterCount);
+					int cnt = groupbyCount.getCnt();
+					if(cnt >= this.streamAgentCnt){
+						CounterCacheSingleton.getSingleton().offer(groupbyCount);
+						counters.remove(key);
+						countersTimeStamp.remove(key);
+						this.flushCount.incrementAndGet();
+					}
 				}
 			}else{
 				counters.put(key, new GroupbyCount(counterCount));

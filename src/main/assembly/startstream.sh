@@ -18,7 +18,7 @@ else
   rm -f $configPath/*
 fi
 
-count=`jps -l | grep App | wc -l`
+count=`jps -l | grep com.gsta.bigdata.stream.Application | wc -l`
 if [ $count -lt $streamAgentCount ]
 then
   ((c=$streamAgentCount-$count))
