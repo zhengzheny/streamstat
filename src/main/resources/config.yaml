@@ -228,6 +228,7 @@ redis:
   testOnReturn: true
   blockWhenExhausted: false
 
+#Deprecated
 elasticsearch:
   cluster.name: gd
   client.transport.sniff: true
