@@ -38,7 +38,7 @@ bloomFilter:
       - 1hour-bloomFilter
       - 1day-bloomFilter
   size:
-    5min-bloomFilter: 12
+    5min-bloomFilter: 24
     1hour-bloomFilter: 6
     1day-bloomFilter: 2
     
@@ -77,7 +77,7 @@ couterList:
 huawei4g-userstat-5min:
   type: com.gsta.bigdata.stream.counter.UserStatCounter
   flushes: elasticsearch
-  flushTimeGapRatio: 2.0
+  flushTimeGapRatio: 1.1
   bloomFilter: 5min-bloomFilter
   timeGap: 5min
     
@@ -85,7 +85,7 @@ huawei4g-userstat-5min:
 huawei4g-userstat-1hour:
   type: com.gsta.bigdata.stream.counter.UserStatCounter
   flushes: elasticsearch
-  flushTimeGapRatio: 1.1
+  flushTimeGapRatio: 1.05
   bloomFilter: 1hour-bloomFilter
   timeGap: 1hour
 
@@ -93,14 +93,14 @@ huawei4g-userstat-1hour:
 huawei4g-userstat-1day:
   type: com.gsta.bigdata.stream.counter.UserStatCounter
   flushes: elasticsearch
-  flushTimeGapRatio: 1.1
+  flushTimeGapRatio: 1.01
   bloomFilter: 1day-bloomFilter
   timeGap: 1day
 
 userstat-mdnprefix-5min:
   type: com.gsta.bigdata.stream.counter.MDNPrefixCounter
   flushes: elasticsearch
-  flushTimeGapRatio: 2.0
+  flushTimeGapRatio: 1.1
   bloomFilter: 5min-bloomFilter
   keyFields: mdnprefix  
   timeGap: 5min
@@ -108,7 +108,7 @@ userstat-mdnprefix-5min:
 userstat-mdnprefix-1hour:
   type: com.gsta.bigdata.stream.counter.MDNPrefixCounter
   flushes: elasticsearch
-  flushTimeGapRatio: 1.1
+  flushTimeGapRatio: 1.05
   bloomFilter: 1hour-bloomFilter
   keyFields: mdnprefix  
   timeGap: 1hour
@@ -116,7 +116,7 @@ userstat-mdnprefix-1hour:
 userstat-mdnprefix-1day:
   type: com.gsta.bigdata.stream.counter.MDNPrefixCounter
   flushes: elasticsearch
-  flushTimeGapRatio: 1.1
+  flushTimeGapRatio: 1.01
   bloomFilter: 1day-bloomFilter
   keyFields: mdnprefix  
   timeGap: 1day
@@ -124,7 +124,7 @@ userstat-mdnprefix-1day:
 userstat-shortmdnprefix-5min:
   type: com.gsta.bigdata.stream.counter.MDNPrefixCounter
   flushes: elasticsearch
-  flushTimeGapRatio: 2.0
+  flushTimeGapRatio: 1.1
   bloomFilter: 5min-bloomFilter
   keyFields: mdnprefix
   shortmdnprefix: true  
@@ -133,7 +133,7 @@ userstat-shortmdnprefix-5min:
 userstat-shortmdnprefix-1hour:
   type: com.gsta.bigdata.stream.counter.MDNPrefixCounter
   flushes: elasticsearch
-  flushTimeGapRatio: 1.1
+  flushTimeGapRatio: 1.05
   bloomFilter: 1hour-bloomFilter
   keyFields: mdnprefix  
   shortmdnprefix: true 
@@ -142,7 +142,7 @@ userstat-shortmdnprefix-1hour:
 userstat-shortmdnprefix-1day:
   type: com.gsta.bigdata.stream.counter.MDNPrefixCounter
   flushes: elasticsearch
-  flushTimeGapRatio: 1.1
+  flushTimeGapRatio: 1.01
   bloomFilter: 1day-bloomFilter
   keyFields: mdnprefix  
   shortmdnprefix: true 
@@ -151,7 +151,7 @@ userstat-shortmdnprefix-1day:
 userstat-CGI-5min:
   type: com.gsta.bigdata.stream.counter.CGIUser5MinCounter
   flushes: elasticsearch
-  flushTimeGapRatio: 2.0
+  flushTimeGapRatio: 1.1
   bloomFilter: 5min-bloomFilter
   keyFields: ECGI
   outputKafkaTopic: tempCGI
@@ -160,13 +160,13 @@ userstat-CGI-5min:
 mdn-prefix-data-1hour:
   type: com.gsta.bigdata.stream.counter.MDNPrefix1HourDataCounter
   flushes: elasticsearch
-  flushTimeGapRatio: 1.1
+  flushTimeGapRatio: 1.05
   keyFields: mdnprefix
   
 short-mdn-prefix-data-1hour:
   type: com.gsta.bigdata.stream.counter.MDNPrefix1HourDataCounter
   flushes: elasticsearch
-  flushTimeGapRatio: 1.1
+  flushTimeGapRatio: 1.05
   keyFields: mdnprefix
   shortmdnprefix: true  
     
@@ -174,12 +174,12 @@ short-mdn-prefix-data-1hour:
 dpi-1hour:
   type: com.gsta.bigdata.stream.counter.DPI1HourCounter
   flushes: elasticsearch
-  flushTimeGapRatio: 1.1
+  flushTimeGapRatio: 1.05
   
 mdn-day-data:
   type: com.gsta.bigdata.stream.counter.MDNDayDataCounter
   flushes: elasticsearch
-  flushTimeGapRatio: 1.1
+  flushTimeGapRatio: 1.01
   continuousFlushes: mdnDayRedis
   #unit is second
   continuousFlushWaitTime: 120

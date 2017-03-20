@@ -9,7 +9,8 @@ configFile=$1
 configPath=./conf/instance/counter
 
 curr=`date +"%Y%m%d"`
-applicationId="counter-$curr"
+#applicationId="counter-$curr"
+applicationId="counter-20170315"
 
 if [ ! -d "$configPath" ]
 then

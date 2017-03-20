@@ -1,6 +1,5 @@
 package com.gsta.bigdata.stream.groupby;
 
-import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -8,9 +7,12 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
+
+
+
+
 //import net.sf.json.JSONObject;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;  
 import com.gsta.bigdata.stream.CounterCacheSingleton;
 import com.gsta.bigdata.stream.CounterCount;
 import com.gsta.bigdata.stream.counter.CountTimeStamp;
@@ -73,34 +75,5 @@ public class GroupbyCounter {
 
 	public Map<String, CountTimeStamp> getCountersTimeStamp() {
 		return countersTimeStamp;
-	}
-
-	public static void main(String[] args){
-		Map<String,Object> map = new java.util.HashMap<String, Object>();
-		map.put("111", "111");
-		map.put("222", 222);
-		map.put("333", "333");
-		
-		//JSONObject jsonObject = JSONObject.fromObject(map);
-		Gson gson = new Gson();
-		
-		String str = gson.toJson(map);
-		System.out.println(str);
-		Type amountCurrencyType =  
-			    new TypeToken<Map<String,Object>>(){}.getType();
-		map = gson.fromJson(str, amountCurrencyType);
-		double i = (double)map.get("222");
-		long j = (long)i;
-		
-		System.out.println(map);
-		System.out.println(j);
-		
-		System.out.println("--------------");
-		long cnt = 111111L;
-		CounterCount jsonCount = new CounterCount(cnt,map);
-		str= gson.toJson(jsonCount);
-		System.out.println(str);
-		jsonCount = gson.fromJson(str, CounterCount.class);
-		System.out.println(jsonCount.count);
 	}
 }

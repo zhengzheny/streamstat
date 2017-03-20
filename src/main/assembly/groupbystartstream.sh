@@ -8,7 +8,8 @@ curr=`date +"%Y%m%d"`
 configFile=$1
 inputTopic=$2 
 outputTopic=$3
-applicationId="groupby-$inputTopic-$curr"
+#applicationId="groupby-$inputTopic-$curr"
+applicationId="groupby-$inputTopic-20170315"
 counterstreamAgentNum=40
 #unit is second
 flushTime=300

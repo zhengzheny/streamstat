@@ -109,7 +109,7 @@ public class BloomFilterFactory {
 					}
 				}else{
 					//如果队列满,得到最久不使用,并重置过滤器
-					if(queue.size() > this.filterSize.getOrDefault(filterName,DEFAULT_BLOOM_FILTER_COUNT).intValue()){
+					if(queue.size() >= this.filterSize.getOrDefault(filterName,DEFAULT_BLOOM_FILTER_COUNT).intValue()){
 						String oldkey = queue.poll();
 						BloomFilterWrapper bloomFilterWrapper = bloomFilter.get(oldkey);
 						if(bloomFilterWrapper != null){
@@ -119,7 +119,8 @@ public class BloomFilterFactory {
 							bloomFilter.remove(oldkey);
 							bloomFilter.put(timekey, bloomFilterWrapper);
 							queue.offer(timekey);
-							logger.info("switch bloom filter,old key={},new key={}",oldkey,timekey);
+							logger.info("{} switch bloom filter,old key={},new key={}",filterName,oldkey,timekey);
+							this.printCacheSize(filterName);
 						}else{
 							//如果队列和内存不一致,只有重建一个
 							logger.warn("get null old bloomFilterWrapper,key={},create new filter",oldkey);
@@ -142,7 +143,14 @@ public class BloomFilterFactory {
 		//增加过滤器和队列
 		this.bloomFilters.get(filterName).put(timeKey, bloomFilterWrapper);
 		this.bloomQueue.get(filterName).offer(timeKey);
-		logger.info("create bloom filter {}",timeKey);
+		logger.info("{} create bloom filter {}",filterName,timeKey);
+		this.printCacheSize(filterName);
+	}
+	
+	private void printCacheSize(String filterName){
+		int bloomfilterSize = this.bloomFilters.get(filterName).size();
+		int queueSize = this.bloomQueue.get(filterName).size();
+		logger.info("{} has {} bloom filters,queue size={}",filterName,bloomfilterSize,queueSize);
 	}
 	
 	/**
