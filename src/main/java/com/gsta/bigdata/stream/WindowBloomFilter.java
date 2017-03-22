@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.gsta.bigdata.stream.utils.WindowTime;
 
+@Deprecated
 public class WindowBloomFilter {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	// keep two window's data
