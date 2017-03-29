@@ -10,6 +10,7 @@
 
 * 3.创建kafka分区
 分区名                     分区数
+
 4GDPI        40
 
 tempCGI      20
