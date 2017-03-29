@@ -1,8 +1,11 @@
 package com.gsta.bigdata.stream.utils;
 
 public class Constants {
+	@Deprecated
 	public final static String BLOOM_FILTER_5MIN = "5min-bloomFilter";
+	@Deprecated
 	public final static String BLOOM_FILTER_1HOUR = "1hour-bloomFilter";
+	@Deprecated
 	public final static String BLOOM_FILTER_1DAY = "1day-bloomFilter";
 	
 	public final static String FIELD_TIMESTAMP = "TimeStamp";

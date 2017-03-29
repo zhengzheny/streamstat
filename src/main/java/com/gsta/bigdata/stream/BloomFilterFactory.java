@@ -1,5 +1,6 @@
 package com.gsta.bigdata.stream;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,51 +31,80 @@ public class BloomFilterFactory {
 	private Map<String,Queue<String>> bloomQueue; 
 	//每一种过滤器的大小,key是布隆过滤器名称,如5min-bloomFilter
 	private Map<String,Integer> filterSize ;
+	//每一种过滤器的字段列表
+	private Map<String,List<String>> filterFields;
+	private Map<String,String> filterTimeGap;
 	
 	private int expectedSize = 1000;
 	private double falsePositiveProbability = 0.1;
 	//是否开启布隆过滤开关
 	private boolean filter = false;
-	private List<String> names;
 	private final static int DEFAULT_BLOOM_FILTER_COUNT = 2;
 
-	@SuppressWarnings("unchecked")
 	private BloomFilterFactory() {
 		this.filterSize = new HashMap<String,Integer>();
-		
-		Map<String, Object> conf = ConfigSingleton.getInstance().getBloomFilter();
-		if (conf != null) {
-			this.falsePositiveProbability = (double) conf.getOrDefault(
-					"falsePositiveProbability", 0.1);
-			this.expectedSize = (int) conf.getOrDefault("expectedSize", 1000);
-			this.filter = (boolean)conf.get("filter");
-			this.names = (List<String>) conf.get("name");
-			
-			Map<String,Integer> sizes = (Map<String,Integer>)conf.get("size");
-			if(sizes != null){
-				this.filterSize.putAll(sizes);
-			}
-		} else {
-			logger.error("invalid bloom filter config...");
-		}
-		
 		this.bloomFilters = new HashMap<String, Map<String,BloomFilterWrapper>>();
 		this.bloomQueue = new HashMap<String,Queue<String>>();	
+		this.filterFields = new HashMap<String,List<String>>();
+		this.filterTimeGap = new HashMap<String,String>();
 	}
 
+	@SuppressWarnings("unchecked")
 	public void init() {
-		if (this.filter && this.names != null) {
+		Map<String, Object> conf = ConfigSingleton.getInstance().getBloomFilter();
+		if (conf == null) {
+			logger.error("invalid bloom filter config...");
+			return;
+		}
+		
+		this.falsePositiveProbability = (double) conf.getOrDefault("falsePositiveProbability", 0.001);
+		this.expectedSize = (int) conf.getOrDefault("expectedSize", 1000000);
+		
+		this.filter = (boolean) conf.getOrDefault("filter",false);
+		List<String> names = (List<String>) conf.get("name");
+		if (this.filter && names != null) {
 			for (String name : names) {
 				this.bloomFilters.put(name, new ConcurrentHashMap<String, BloomFilterWrapper>());
 				
 				ConcurrentLinkedQueue<String> q = new ConcurrentLinkedQueue<String>();
 				this.bloomQueue.put(name, q);
 				
-				//不配置,默认有2个布隆过滤,主要是考虑切换时候用
-				int size = this.filterSize.getOrDefault(name,DEFAULT_BLOOM_FILTER_COUNT);
-				logger.info("bloom filter,name={},size={}",name,size);
+				Map<String,Object> filterConf = (Map<String,Object>)conf.get(name);
+				if(filterConf == null){
+					throw new RuntimeException(name + " filter has no configure...");
+				}
+				String fields = (String)filterConf.get("fields");
+				if(fields == null){
+					throw new RuntimeException(name + " filter has no fields configure...");
+				}				
+				List<String> arrFields = Arrays.asList(fields.split(","));
+				this.filterFields.put(name, arrFields);
+				int size = (Integer)filterConf.getOrDefault("size", DEFAULT_BLOOM_FILTER_COUNT);
+				this.filterSize.put(name, size);
+				logger.info("bloom filter,name={},size={},fields={}",name,size,arrFields);
+				
+				String timeGap = (String)filterConf.getOrDefault("timeGap", Constants.TIME_GAP_5_MIN);
+				this.filterTimeGap.put(name, timeGap);
 			}
 		}
+	}
+	
+	/**
+	 * 得到过滤器的去重关键字,如果有多个字段,就有多个字段组成
+	 * @param filterName
+	 * @param data
+	 * @return
+	 */
+	private  String getFilterKey(String filterName,Map<String, String> data){
+		String ret = "";
+		
+		if(data != null){
+			for(String field:this.filterFields.get(filterName)){
+				ret += data.get(field);
+			}
+		}
+		
+		return ret;
 	}
 
 	/**
@@ -82,7 +112,7 @@ public class BloomFilterFactory {
 	 * @param timeStamp - 时间戳,根据时间戳找到对应的布隆过滤其
 	 * @param mdn - 电话号码
 	 */
-	public void add(long timeStamp,String mdn){
+	public void add(long timeStamp,Map<String, String> data){
 		if (!this.filter) return;
 
 		// 一个个过滤器处理,5分钟/1小时/1天
@@ -93,16 +123,18 @@ public class BloomFilterFactory {
 			WindowTime.WinTime winTime = this.getWindowKey(filterName,timeStamp);
 			String timekey = winTime.getTimeStamp();
 			
+			String filterKey = this.getFilterKey(filterName, data);
+			
 			Queue<String> queue = this.bloomQueue.get(filterName);
 			//第一次还没有过滤器,创建初始化
-			if (queue.isEmpty()) {
-				this.createBloomFilter(filterName, timekey, mdn);
+			if (queue.isEmpty()) {				
+				this.createBloomFilter(filterName, timekey, filterKey);
 			} else {
 				//如果队列包含时间key,直接插入
 				if(queue.contains(timekey)){
 					BloomFilterWrapper bloomFilterWrapper = bloomFilter.get(timekey);
 					if(bloomFilterWrapper != null) {
-						bloomFilterWrapper.add(mdn);
+						bloomFilterWrapper.add(filterKey);
 					}else{
 						//如果在队列中有,但是过滤器没有,即两边不一致,告警,丢掉此条数据
 						logger.error("get null bloomFilterWrapper,key={}",timekey);
@@ -114,7 +146,8 @@ public class BloomFilterFactory {
 						BloomFilterWrapper bloomFilterWrapper = bloomFilter.get(oldkey);
 						if(bloomFilterWrapper != null){
 							bloomFilterWrapper.clear();
-							bloomFilterWrapper.add(mdn);
+							
+							bloomFilterWrapper.add(filterKey);
 							
 							bloomFilter.remove(oldkey);
 							bloomFilter.put(timekey, bloomFilterWrapper);
@@ -124,21 +157,21 @@ public class BloomFilterFactory {
 						}else{
 							//如果队列和内存不一致,只有重建一个
 							logger.warn("get null old bloomFilterWrapper,key={},create new filter",oldkey);
-							this.createBloomFilter(filterName, timekey, mdn);
+							this.createBloomFilter(filterName, timekey, filterKey);
 						}
 					}else{
 						//队列不满,直接新加,并插入
-						this.createBloomFilter(filterName, timekey, mdn);
+						this.createBloomFilter(filterName, timekey, filterKey);
 					}
 				}
 			}
 		}//end for map
 	}
 
-	private void createBloomFilter(String filterName, String timeKey, String mdn) {
+	private void createBloomFilter(String filterName, String timeKey, String filterKey) {
 		BloomFilterWrapper bloomFilterWrapper = new BloomFilterWrapper(timeKey,
 				this.expectedSize, this.falsePositiveProbability);
-		bloomFilterWrapper.add(mdn);
+		bloomFilterWrapper.add(filterKey);
 
 		//增加过滤器和队列
 		this.bloomFilters.get(filterName).put(timeKey, bloomFilterWrapper);
@@ -160,13 +193,14 @@ public class BloomFilterFactory {
 	 * @param mdn
 	 * @return
 	 */
-	public boolean isExist(String filterName,long timeStamp,String mdn){
+	public boolean isExist(String filterName,long timeStamp,Map<String, String> data){
 		Map<String, BloomFilterWrapper> bloomFilter = this.bloomFilters.get(filterName);
 		if(bloomFilter != null){
 			WindowTime.WinTime winTime = this.getWindowKey(filterName,timeStamp);
 			BloomFilterWrapper bloomFilterWrapper = bloomFilter.get(winTime.getTimeStamp());
 			if(bloomFilterWrapper != null){
-				return bloomFilterWrapper.isExist(mdn);
+				String filterKey = this.getFilterKey(filterName, data);
+				return bloomFilterWrapper.isExist(filterKey);
 			}
 		}
 		
@@ -174,11 +208,12 @@ public class BloomFilterFactory {
 	}
 
 	private WindowTime.WinTime getWindowKey(String filterName,long timeStamp){
-		if (Constants.BLOOM_FILTER_5MIN.equals(filterName)) {
+		String timeGap = this.filterTimeGap.getOrDefault(filterName, Constants.TIME_GAP_5_MIN);
+		if (Constants.TIME_GAP_5_MIN.equals(timeGap)) {
 			return WindowTime.get5min(timeStamp);
-		} else if (Constants.BLOOM_FILTER_1HOUR.equals(filterName)) {
+		} else if (Constants.TIME_GAP_1_HOUR.equals(timeGap)) {
 			return WindowTime.get1hour(timeStamp);
-		}else if (Constants.BLOOM_FILTER_1DAY.equals(filterName)) {
+		}else if (Constants.TIME_GAP_1_DAY.equals(timeGap)) {
 			return WindowTime.get1day(timeStamp);
 		}
 		

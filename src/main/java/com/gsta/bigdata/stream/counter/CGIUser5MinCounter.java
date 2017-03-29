@@ -25,7 +25,7 @@ public class CGIUser5MinCounter extends AbstractCounter {
 		}
 
 		boolean isExist = BloomFilterFactory.getInstance().isExist(
-				super.getBloomFilterName(), timeStamp, mdn);
+				super.getBloomFilterName(), timeStamp, valueData);
 		if (!isExist) {
 			String key = valueData.get(super.getKeyFields()[0]);
 			WindowTime.WinTime winTime = WindowTime.get5min(timeStamp);

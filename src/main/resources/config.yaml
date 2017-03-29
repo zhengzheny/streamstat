@@ -34,14 +34,32 @@ bloomFilter:
   falsePositiveProbability: 0.0001
   expectedSize: 1000000
   name:
-      - 5min-bloomFilter
-      - 1hour-bloomFilter
-      - 1day-bloomFilter
-  size:
-    5min-bloomFilter: 24
-    1hour-bloomFilter: 6
-    1day-bloomFilter: 2
-    
+    - 5min-mdn-bloomFilter
+    - 1hour-mdn-bloomFilter
+    - 1day-mdn-bloomFilter
+    - 1hour-CGI-bloomFilter
+    - 1hour-domain-bloomFilter
+  5min-mdn-bloomFilter: 
+    fields: MSISDN
+    size: 24
+    timeGap: 5min
+  1hour-mdn-bloomFilter: 
+    fields: MSISDN
+    size: 6
+    timeGap: 1hour
+  1day-mdn-bloomFilter: 
+    fields: MSISDN
+    size: 2
+    timeGap: 1day
+  1hour-CGI-bloomFilter:
+    fields: ECGI
+    size: 6
+    timeGap: 1hour
+  1hour-domain-bloomFilter:
+    fields: Domain
+    size: 6 
+    timeGap: 1hour 
+  
 sourceFields:
   fields: 
       - MSISDN
@@ -54,31 +72,44 @@ sourceFields:
   delimiter: \|
 
 couterList:
-  - huawei4g-userstat-5min
-  - huawei4g-userstat-1hour
-  - huawei4g-userstat-1day
-  - userstat-mdnprefix-5min
-  - userstat-mdnprefix-1hour
-  - userstat-mdnprefix-1day
-  - userstat-shortmdnprefix-5min
-  - userstat-shortmdnprefix-1hour
-  - userstat-shortmdnprefix-1day
-#  - userstat-CGI-5min
-  - mdn-prefix-data-1hour
-  - short-mdn-prefix-data-1hour
+  #1小时内dpi的总数
   - dpi-1hour
-  - mdn-day-data
-  - domain-5min
- # - CGI-5min 
-  - CGI-data-5min
-#  - CGI-domain-5min
+  #1小时内用户数,去重后
+  - huawei4g-userstat-1hour
+  #5分钟内用户数,去重后
+  - huawei4g-userstat-5min
+  #1天用户数,去重后
+  - huawei4g-userstat-1day
+  #1小时内号码头用户数,去重后,如1331609
+  - userstat-mdnprefix-1hour
+  #1小时内短号码头用户数,去重后,如133
+  - userstat-shortmdnprefix-1hour
+  #1小时内号码头流量累积,单位为byte,如1331609
+  - mdn-prefix-data-1hour
+  #1小时内短号码头流量累积,单位为byte,如133
+  - short-mdn-prefix-data-1hour
+  #1天内号码头用户数,去重后,如1331609
+  - userstat-mdnprefix-1day
+  #1天内短号码头用户数,去重后,如133
+  - userstat-shortmdnprefix-1day
+  ##################todo::需要新开发############################
+  #5分钟内用户累积流量,单位byte
+  - user-data-5min
+  #1小时内用户累积流量,单位byte
+  - dpi-1hour-data
+  #1小时内cgi数量,去重后
+  - cgicount-1hour
+  #一个小时内域名的总数,去重后
+  - domaincount-1hour
+  #1小时内域名访问的dpi数,三级域名,无需去重
+  - domainstat-1hour
   
 #derepeated mdn and mdn-prefix stat in 5 min
 huawei4g-userstat-5min:
   type: com.gsta.bigdata.stream.counter.UserStatCounter
   flushes: elasticsearch
   flushTimeGapRatio: 1.1
-  bloomFilter: 5min-bloomFilter
+  bloomFilter: 5min-mdn-bloomFilter
   timeGap: 5min
     
 #derepeated mdn and mdn-prefix stat in 1 hour   
@@ -86,7 +117,7 @@ huawei4g-userstat-1hour:
   type: com.gsta.bigdata.stream.counter.UserStatCounter
   flushes: elasticsearch
   flushTimeGapRatio: 1.05
-  bloomFilter: 1hour-bloomFilter
+  bloomFilter: 1hour-mdn-bloomFilter
   timeGap: 1hour
 
 #derepeated mdn and mdn-prefix stat in 1 day
@@ -94,22 +125,14 @@ huawei4g-userstat-1day:
   type: com.gsta.bigdata.stream.counter.UserStatCounter
   flushes: elasticsearch
   flushTimeGapRatio: 1.01
-  bloomFilter: 1day-bloomFilter
+  bloomFilter: 1day-mdn-bloomFilter
   timeGap: 1day
-
-userstat-mdnprefix-5min:
-  type: com.gsta.bigdata.stream.counter.MDNPrefixCounter
-  flushes: elasticsearch
-  flushTimeGapRatio: 1.1
-  bloomFilter: 5min-bloomFilter
-  keyFields: mdnprefix  
-  timeGap: 5min
     
 userstat-mdnprefix-1hour:
   type: com.gsta.bigdata.stream.counter.MDNPrefixCounter
   flushes: elasticsearch
   flushTimeGapRatio: 1.05
-  bloomFilter: 1hour-bloomFilter
+  bloomFilter: 1hour-mdn-bloomFilter
   keyFields: mdnprefix  
   timeGap: 1hour
 
@@ -117,24 +140,15 @@ userstat-mdnprefix-1day:
   type: com.gsta.bigdata.stream.counter.MDNPrefixCounter
   flushes: elasticsearch
   flushTimeGapRatio: 1.01
-  bloomFilter: 1day-bloomFilter
+  bloomFilter: 1day-mdn-bloomFilter
   keyFields: mdnprefix  
   timeGap: 1day
 
-userstat-shortmdnprefix-5min:
-  type: com.gsta.bigdata.stream.counter.MDNPrefixCounter
-  flushes: elasticsearch
-  flushTimeGapRatio: 1.1
-  bloomFilter: 5min-bloomFilter
-  keyFields: mdnprefix
-  shortmdnprefix: true  
-  timeGap: 5min
-    
 userstat-shortmdnprefix-1hour:
   type: com.gsta.bigdata.stream.counter.MDNPrefixCounter
   flushes: elasticsearch
   flushTimeGapRatio: 1.05
-  bloomFilter: 1hour-bloomFilter
+  bloomFilter: 1hour-mdn-bloomFilter
   keyFields: mdnprefix  
   shortmdnprefix: true 
   timeGap: 1hour
@@ -143,18 +157,10 @@ userstat-shortmdnprefix-1day:
   type: com.gsta.bigdata.stream.counter.MDNPrefixCounter
   flushes: elasticsearch
   flushTimeGapRatio: 1.01
-  bloomFilter: 1day-bloomFilter
+  bloomFilter: 1day-mdn-bloomFilter
   keyFields: mdnprefix  
   shortmdnprefix: true 
   timeGap: 1day
-  
-userstat-CGI-5min:
-  type: com.gsta.bigdata.stream.counter.CGIUser5MinCounter
-  flushes: elasticsearch
-  flushTimeGapRatio: 1.1
-  bloomFilter: 5min-bloomFilter
-  keyFields: ECGI
-  outputKafkaTopic: tempCGI
 
 #mdn prefix data count in 1 hour
 mdn-prefix-data-1hour:
@@ -175,7 +181,14 @@ dpi-1hour:
   type: com.gsta.bigdata.stream.counter.DPI1HourCounter
   flushes: elasticsearch
   flushTimeGapRatio: 1.05
-  
+
+domainstat-1hour:
+  type: com.gsta.bigdata.stream.counter.DomainStat1HourCounter
+  flushes: elasticsearch
+  flushTimeGapRatio: 1.05
+  keyFields: Domain
+#  outputKafkaTopic: tempDomain
+
 mdn-day-data:
   type: com.gsta.bigdata.stream.counter.MDNDayDataCounter
   flushes: elasticsearch
@@ -185,31 +198,6 @@ mdn-day-data:
   continuousFlushWaitTime: 120
   keyFields: MSISDN
 
-domain-5min:
-  type: com.gsta.bigdata.stream.counter.Field5MinCounter
-  flushes: elasticsearch
-  flushTimeGapRatio: 1.1
-  keyFields: Domain
-
-CGI-5min:
-  type: com.gsta.bigdata.stream.counter.Field5MinCounter
-  flushes: elasticsearch
-  flushTimeGapRatio: 1.1
-  keyFields: ECGI 
-
-CGI-data-5min:
-  type: com.gsta.bigdata.stream.counter.CGIData5MinCounter
-  flushes: elasticsearch
-  flushTimeGapRatio: 1.1
-  keyFields: ECGI
-  outputKafkaTopic: tempCGI
-
-CGI-domain-5min:
-  type: com.gsta.bigdata.stream.counter.MultiField5MinCounter
-  flushes: elasticsearch
-  flushTimeGapRatio: 1.1
-  keyFields: ECGI,Domain
-    
 redis:
   host: XTH04-Sugoni840-9
   port: 6379

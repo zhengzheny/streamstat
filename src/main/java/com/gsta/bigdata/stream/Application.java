@@ -170,7 +170,7 @@ public class Application {
 				}
 				
 				//布隆过滤插入数据
-				BloomFilterFactory.getInstance().add(timeStamp, mdn);
+				BloomFilterFactory.getInstance().add(timeStamp, data);
 				return new KeyValue<>(null, null);
 			}
 		});

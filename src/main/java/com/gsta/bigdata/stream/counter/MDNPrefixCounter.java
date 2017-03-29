@@ -51,7 +51,7 @@ public class MDNPrefixCounter extends AbstractCounter {
 		}
 
 		boolean isExist = BloomFilterFactory.getInstance().isExist(
-				super.getBloomFilterName(), timeStamp, mdn);
+				super.getBloomFilterName(), timeStamp, valueData);
 		if (!isExist) {
 			WindowTime.WinTime winTime = this.getWindowKey(timeStamp);
 			if (winTime != null) {
