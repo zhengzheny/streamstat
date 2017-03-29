@@ -102,7 +102,7 @@ public class SysUtils {
 		return true;
 	}
 	
-	public static String getThirdPartDomain(String domain){
+	public static String getLevel3Domain(String domain){
 		if(domain == null) return null;
 		
 		String host = domain;

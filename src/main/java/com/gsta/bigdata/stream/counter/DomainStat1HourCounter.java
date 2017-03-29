@@ -32,6 +32,6 @@ public class DomainStat1HourCounter extends AbstractCounter {
 		//domain="182.254.116.117";
 		domain = "amdc.m.taobao.com:8090";
 		
-		System.out.println(SysUtils.getThirdPartDomain(domain));
+		System.out.println(SysUtils.getLevel3Domain(domain));
 	}
 }
