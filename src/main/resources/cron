@@ -1,3 +1,6 @@
 SHELL=/bin/bash
 PATH=/home/noce/jdk1.8.0_45/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin:/bin:/root/bin:/bin:/home/noce/bin
 */5 * * * *  /home/noce/kafkastream/bin/autostream.sh >> /home/noce/kafkastream/auto.log 2>&1
+
+
+0 1 * * * /home/noce/installMedia/delLogs.sh >> /data/deletelog.txt 2>&1
