@@ -33,6 +33,7 @@ public class BloomFilterFactory {
 	private Map<String,Integer> filterSize ;
 	//每一种过滤器的字段列表
 	private Map<String,List<String>> filterFields;
+	//每一种过滤器的时间窗口单位
 	private Map<String,String> filterTimeGap;
 	
 	private int expectedSize = 1000;
@@ -110,7 +111,7 @@ public class BloomFilterFactory {
 	/**
 	 * 向布隆过滤器增加数据
 	 * @param timeStamp - 时间戳,根据时间戳找到对应的布隆过滤其
-	 * @param mdn - 电话号码
+	 * @param data - 原始数据k-v
 	 */
 	public void add(long timeStamp,Map<String, String> data){
 		if (!this.filter) return;
@@ -190,7 +191,7 @@ public class BloomFilterFactory {
 	 * 判断号码是否在过滤器中
 	 * @param filterName
 	 * @param timeStamp
-	 * @param mdn
+	 * @param data
 	 * @return
 	 */
 	public boolean isExist(String filterName,long timeStamp,Map<String, String> data){
@@ -222,9 +223,5 @@ public class BloomFilterFactory {
 
 	public static BloomFilterFactory getInstance() {
 		return singleton;
-	}
-
-	public static void main(String[] args){
-		
 	}
 }
