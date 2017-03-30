@@ -155,7 +155,6 @@ public class Application {
 				Map<String, String> data = parseValue(value,sourceFields,sourceDelimiter);
 				
 				//deal with by bloom filter
-				String mdn = data.get(Constants.FIELD_MSISDN);
 				long timeStamp = -1L;
 				try {
 					timeStamp = Long.parseLong(data.get(Constants.FIELD_TIMESTAMP));
@@ -166,7 +165,7 @@ public class Application {
 								
 				//每一个计数器处理计数
 				for(Map.Entry<String, AbstractCounter> entry:counters.entrySet()){
-					entry.getValue().add(key, data,mdn,timeStamp);
+					entry.getValue().add(key, data,timeStamp);
 				}
 				
 				//布隆过滤插入数据

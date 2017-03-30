@@ -29,7 +29,7 @@ public class MDNPrefix1HourDataCounter extends AbstractCounter {
 	}
 
 	@Override
-	public void add(String kafkaKey, Map<String, String> valueData,String mdn, long timeStamp) {
+	public void add(String kafkaKey, Map<String, String> valueData,long timeStamp) {
 		if (kafkaKey == null || valueData == null) {
 			return;
 		}
@@ -45,6 +45,7 @@ public class MDNPrefix1HourDataCounter extends AbstractCounter {
 
 		WindowTime.WinTime winTime = WindowTime.get1hour(timeStamp);
 		String ts = winTime.getTimeStamp();
+		String mdn = valueData.get(Constants.FIELD_MSISDN);
 		String key = parseMdnPrefix(mdn,shortmdnprefix) + Constants.KEY_DELIMITER + ts;
 		long mdnData = inputOctets + outputOctets;
 

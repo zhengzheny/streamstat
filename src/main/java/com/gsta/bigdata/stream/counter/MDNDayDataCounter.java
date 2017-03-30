@@ -23,7 +23,7 @@ public class MDNDayDataCounter extends AbstractCounter {
 	}
 
 	@Override
-	public void add(String kafkaKey,Map<String, String> valueData,String mdn, long timeStamp) {
+	public void add(String kafkaKey,Map<String, String> valueData,long timeStamp) {
 		if (kafkaKey == null || valueData == null) {
 			return;
 		}
@@ -39,6 +39,7 @@ public class MDNDayDataCounter extends AbstractCounter {
 		
 		WindowTime.WinTime winTime = WindowTime.get1day(timeStamp);
 		String ts = winTime.getTimeStamp();
+		String mdn = valueData.get(Constants.FIELD_MSISDN);
 		String key = mdn + Constants.KEY_DELIMITER + ts;
 	
 		long mdnData = inputOctets + outputOctets;

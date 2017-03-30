@@ -12,8 +12,7 @@ public class DomainStat1HourCounter extends AbstractCounter {
 	}
 
 	@Override
-	public void add(String kafkaKey, Map<String, String> valueData, String mdn,
-			long timeStamp) {
+	public void add(String kafkaKey, Map<String, String> valueData, long timeStamp) {
 		// TODO Auto-generated method stub
 
 	}

@@ -43,7 +43,7 @@ public class UserStatCounter extends AbstractCounter {
 	}
 
 	@Override
-	public void add(String kafkaKey, Map<String, String> valueData, String mdn,long timeStamp) {
+	public void add(String kafkaKey, Map<String, String> valueData, long timeStamp) {
 		if (kafkaKey == null || valueData == null) {
 			return;
 		}

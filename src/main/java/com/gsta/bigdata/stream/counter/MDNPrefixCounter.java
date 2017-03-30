@@ -45,7 +45,7 @@ public class MDNPrefixCounter extends AbstractCounter {
 	}
 
 	@Override
-	public void add(String kafkaKey, Map<String, String> valueData, String mdn,long timeStamp) {
+	public void add(String kafkaKey, Map<String, String> valueData,long timeStamp) {
 		if (kafkaKey == null || valueData == null) {
 			return;
 		}
@@ -55,6 +55,7 @@ public class MDNPrefixCounter extends AbstractCounter {
 		if (!isExist) {
 			WindowTime.WinTime winTime = this.getWindowKey(timeStamp);
 			if (winTime != null) {
+				String mdn = valueData.get(Constants.FIELD_MSISDN);
 				String key = super.parseMdnPrefix(mdn,shortmdnprefix)
 						+ Constants.KEY_DELIMITER + winTime.getTimeStamp();
 				

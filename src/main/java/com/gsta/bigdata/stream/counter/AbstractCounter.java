@@ -73,8 +73,7 @@ public abstract class AbstractCounter {
 		}//end of if (configs != null)
 	}
 
-	public abstract void add(String kafkaKey, Map<String, String> valueData,
-			String mdn, long timeStamp);
+	public abstract void add(String kafkaKey, Map<String, String> valueData,long timeStamp);
 
 	public Map<String, Count> getCounters() {
 		return counters;
