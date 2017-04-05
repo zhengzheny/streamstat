@@ -198,37 +198,6 @@ mdn-day-data:
   continuousFlushWaitTime: 120
   keyFields: MSISDN
 
-###########NEW############
-dpi-1hour-data:
-  type: com.gsta.bigdata.stream.counter.DPIDataCounter
-  flushes: elasticsearch
-  flushTimeGapRatio: 1.05
-  timeGap: 1hour
-  
-user-data-5min:
-  type: com.gsta.bigdata.stream.counter.DPIDataCounter
-  flushes: elasticsearch
-  flushTimeGapRatio: 1.05
-  timeGap: 5min
-  
-domainstat-1hour:
-  type: com.gsta.bigdata.stream.counter.DomainStat1HourCounter
-  flushes: elasticsearch
-  flushTimeGapRatio: 1.05
-  keyFields: Domain
-
-cgicount-1hour:
-  type: com.gsta.bigdata.stream.counter.CGI1HourCounter
-  flushes: elasticsearch
-  flushTimeGapRatio: 1.05
-  bloomFilter: 1hour-CGI-bloomFilter
-
-domaincount-1hour:
-  type: com.gsta.bigdata.stream.counter.Domain1HourCounter
-  flushes: elasticsearch
-  flushTimeGapRatio: 1.05
-  bloomFilter: 1hour-domain-bloomFilter
-
 redis:
   host: XTH04-Sugoni840-9
   port: 6379
