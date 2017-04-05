@@ -35,7 +35,7 @@ public class DomainStat1HourCounter extends AbstractCounter {
 		super.addCount(key);
 		super.addCountTimeStamp(key);
 
-	}
+	 }
 
 	@Override
 	public long getFlushTimeGap() {

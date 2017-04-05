@@ -16,8 +16,7 @@ public class DPIDataCounter extends AbstractCounter {
 	private String timeGapType;
 
 	public DPIDataCounter(String name) {
-		super(name);
-		
+		super(name);		
 		Map<String, Object> conf = ConfigSingleton.getInstance().getCounterConf(name);
 		if(conf != null){
 			this.timeGapType = (String)conf.getOrDefault("timeGap","1hour");

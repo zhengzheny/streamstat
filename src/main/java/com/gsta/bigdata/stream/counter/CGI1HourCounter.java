@@ -28,7 +28,7 @@ public class CGI1HourCounter extends AbstractCounter {
 				.getCounterFlushTimeGapRatio(super.name);
 */
 		this.flushTimeGap = (long) t;
-	}
+	 }
 
 	@Override
 	public void add(String kafkaKey, Map<String, String> valueData, long timeStamp) {
