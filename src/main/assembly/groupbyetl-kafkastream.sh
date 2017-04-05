@@ -22,7 +22,7 @@ done
 #RUN_CMD="\"$JAVA_HOME/bin/java\""
 RUN_CMD="java "
 RUN_CMD="$RUN_CMD -classpath \"$BIGDATA_CLASSPATH\""
-RUN_CMD="$RUN_CMD -Xmx16G -Xms16G "
+RUN_CMD="$RUN_CMD -Xmx8G -Xms8G "
 ((port=$jmxport+$no))
 RUN_CMD="$RUN_CMD -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false "
 RUN_CMD="$RUN_CMD -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.port=$port "
