@@ -92,7 +92,6 @@ couterList:
   - userstat-mdnprefix-1day
   #1天内短号码头用户数,去重后,如133
   - userstat-shortmdnprefix-1day
-  ##################todo::需要新开发############################
   #5分钟内用户累积流量,单位byte
   - user-data-5min
   #1小时内用户累积流量,单位byte
