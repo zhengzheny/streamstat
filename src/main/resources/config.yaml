@@ -1,6 +1,6 @@
 kafkaCluster:
   #stream config
-#  application.id: noceStream20170312-1
+# application.id: noceStream20170312-1
   bootstrap.servers: XTH04-Sugoni840-8:9091,XTH04-Sugoni840-8:9092,XTH04-Sugoni840-9:9093,XTH04-Sugoni840-9:9094,XTH04-Sugoni840-10:9095,XTH04-Sugoni840-10:9096,XTH04-Sugoni840-11:9097,XTH04-Sugoni840-11:9098,XTH04-Sugoni840-12:9099,XTH04-Sugoni840-12:9091
   client.id: noce
   zookeeper.connect: XTH04-Sugoni840-10:2182,XTH04-Sugoni840-11:2182,XTH04-Sugoni840-12:2182/kafkaCluster
@@ -197,6 +197,37 @@ mdn-day-data:
   #unit is second
   continuousFlushWaitTime: 120
   keyFields: MSISDN
+  
+############new############  
+cgicount-1hour:
+  type: com.gsta.bigdata.stream.counter.CGI1HourCounter
+  flushes: elasticsearch
+  flushTimeGapRatio: 1.05
+  bloomFilter: 1hour-CGI-bloomFilter
+  
+domaincount-1hour:
+  type: com.gsta.bigdata.stream.counter.Domain1HourCounter
+  flushes: elasticsearch
+  flushTimeGapRatio: 1.05
+  bloomFilter: 1hour-domain-bloomFilter
+  
+domainstat-1hour:
+  type: com.gsta.bigdata.stream.counter.DomainStat1HourCounter
+  flushes: elasticsearch
+  flushTimeGapRatio: 1.05
+  keyFields: Domain
+  
+user-data-5min:
+  type: com.gsta.bigdata.stream.counter.DPIDataCounter
+  flushes: elasticsearch
+  flushTimeGapRatio: 1.05
+  timeGap: 5min
+  
+dpi-1hour-data:
+  type: com.gsta.bigdata.stream.counter.DPIDataCounter
+  flushes: elasticsearch
+  flushTimeGapRatio: 1.05
+  timeGap: 1hour
 
 redis:
   host: XTH04-Sugoni840-9

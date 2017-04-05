@@ -15,7 +15,7 @@ public class DomainStat1HourCounter extends AbstractCounter {
 	public void add(String kafkaKey, Map<String, String> valueData, long timeStamp) {
 		// TODO Auto-generated method stub
 
-	}
+	 }
 
 	@Override
 	public long getFlushTimeGap() {
