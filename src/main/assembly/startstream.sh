@@ -11,6 +11,8 @@ configPath=./conf/instance/counter
 curr=`date +"%Y%m%d"`
 #applicationId="counter-$curr"
 applicationId="counter-20170315"
+#初始化布隆过滤器列表
+initbloomFilters="5min-mdn-bloomFilter,1hour-mdn-bloomFilter,1day-mdn-bloomFilter,1hour-CGI-bloomFilter,1hour-domain-bloomFilter"
 
 if [ ! -d "$configPath" ]
 then
@@ -28,7 +30,7 @@ then
         config=$configPath/config$i.yaml
         path="/data/kafkastream/counter/state/config$i/"
         sed "s:STATE_DIR:${path}:g" $configFile > $config
-        nohup bin/etl-kafkastream.sh $config $applicationId $i &
+        nohup bin/etl-kafkastream.sh $config $applicationId $initbloomFilters $i &
         echo "start $i  stream agent..."
     done
 fi

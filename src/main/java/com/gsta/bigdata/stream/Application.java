@@ -1,5 +1,6 @@
 package com.gsta.bigdata.stream;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -122,10 +123,10 @@ public class Application {
 	}
 	
 	public static void main(String[] args) {
-		if(args.length < 2){
+		if(args.length < 3){
 			//由于和GroupbyCounterApp共享配置文件,application.id难以做到统一,由命令行输入
 			System.out.println("usage:" + Application.class.getSimpleName() + 
-					" configFile application.id");
+					" configFile application.id initbloomFilters");
 			System.exit(-1);
 		}
 		
@@ -145,8 +146,9 @@ public class Application {
 		KStreamBuilder builder = new KStreamBuilder();
 		KStream<String, String> source = builder.stream(topic);
 		
+		List<String> bloomFilters = Arrays.asList(args[2].split(",",-1));
 		//初始化布隆过滤器,全局一套,各个counter共用
-		BloomFilterFactory.getInstance().init();
+		BloomFilterFactory.getInstance().init(bloomFilters);
 
 		source.map(new KeyValueMapper<String, String, KeyValue<String, String>>() {			
 			@Override

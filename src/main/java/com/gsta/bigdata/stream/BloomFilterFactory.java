@@ -51,7 +51,11 @@ public class BloomFilterFactory {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void init() {
+	/**
+	 * 初始化布隆过滤器,默认初始化配置文件中的所有过滤器,如果需要初始化部分,在主函数传入进来
+	 * @param initBloomFilterList
+	 */
+	public void init(List<String> initBloomFilterList) {
 		Map<String, Object> conf = ConfigSingleton.getInstance().getBloomFilter();
 		if (conf == null) {
 			logger.error("invalid bloom filter config...");
@@ -65,27 +69,29 @@ public class BloomFilterFactory {
 		List<String> names = (List<String>) conf.get("name");
 		if (this.filter && names != null) {
 			for (String name : names) {
-				this.bloomFilters.put(name, new ConcurrentHashMap<String, BloomFilterWrapper>());
-				
-				ConcurrentLinkedQueue<String> q = new ConcurrentLinkedQueue<String>();
-				this.bloomQueue.put(name, q);
-				
-				Map<String,Object> filterConf = (Map<String,Object>)conf.get(name);
-				if(filterConf == null){
-					throw new RuntimeException(name + " filter has no configure...");
+				if(initBloomFilterList != null && initBloomFilterList.contains(name)){
+					this.bloomFilters.put(name, new ConcurrentHashMap<String, BloomFilterWrapper>());
+					
+					ConcurrentLinkedQueue<String> q = new ConcurrentLinkedQueue<String>();
+					this.bloomQueue.put(name, q);
+					
+					Map<String,Object> filterConf = (Map<String,Object>)conf.get(name);
+					if(filterConf == null){
+						throw new RuntimeException(name + " filter has no configure...");
+					}
+					String fields = (String)filterConf.get("fields");
+					if(fields == null){
+						throw new RuntimeException(name + " filter has no fields configure...");
+					}				
+					List<String> arrFields = Arrays.asList(fields.split(","));
+					this.filterFields.put(name, arrFields);
+					int size = (Integer)filterConf.getOrDefault("size", DEFAULT_BLOOM_FILTER_COUNT);
+					this.filterSize.put(name, size);
+					logger.info("bloom filter,name={},size={},fields={}",name,size,arrFields);
+					
+					String timeGap = (String)filterConf.getOrDefault("timeGap", Constants.TIME_GAP_5_MIN);
+					this.filterTimeGap.put(name, timeGap);
 				}
-				String fields = (String)filterConf.get("fields");
-				if(fields == null){
-					throw new RuntimeException(name + " filter has no fields configure...");
-				}				
-				List<String> arrFields = Arrays.asList(fields.split(","));
-				this.filterFields.put(name, arrFields);
-				int size = (Integer)filterConf.getOrDefault("size", DEFAULT_BLOOM_FILTER_COUNT);
-				this.filterSize.put(name, size);
-				logger.info("bloom filter,name={},size={},fields={}",name,size,arrFields);
-				
-				String timeGap = (String)filterConf.getOrDefault("timeGap", Constants.TIME_GAP_5_MIN);
-				this.filterTimeGap.put(name, timeGap);
 			}
 		}
 	}
