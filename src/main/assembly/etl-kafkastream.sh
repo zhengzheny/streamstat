@@ -2,14 +2,14 @@
 
 if [ $# -lt 3 ]
 then
-  echo "usage:bin/etl-kafkastream.sh configFile application.id streamAgentNo"
+  echo "usage:bin/etl-kafkastream.sh configFile application.id initbloomFilters streamAgentNo"
   exit -1
 fi
 
 BASEDIR=`dirname "$0"`/..
 cd $BASEDIR
 configFile=$1
-no=$3
+no=$4
   
 BIGDATA_CLASSPATH="$BASEDIR/conf:$BASEDIR/lib/"
 for i in "$BASEDIR"/lib/*.jar
