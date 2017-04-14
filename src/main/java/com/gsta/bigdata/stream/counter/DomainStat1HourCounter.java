@@ -28,10 +28,15 @@ public class DomainStat1HourCounter extends AbstractCounter {
 		if (kafkaKey == null || valueData == null) {
 			return;
 		}
-		String Domain = SysUtils.getLevel3Domain(valueData.get("Domain"));
+		String Domain ="";
+		try{
+		 Domain = SysUtils.getLevel3Domain(valueData.get("Domain"));
+		}catch (NumberFormatException e) {
+			logger.error(e.getMessage()+valueData.get("Domain"));
+			return;
+		}
 		WindowTime.WinTime winTime = WindowTime.get1hour(timeStamp);
 		String key = Domain + Constants.KEY_DELIMITER + winTime.getTimeStamp();;
-		logger.info("DomainStat:"+ key);
 		super.addCount(key);
 		super.addCountTimeStamp(key);
 

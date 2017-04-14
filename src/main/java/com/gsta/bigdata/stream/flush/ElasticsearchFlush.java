@@ -32,7 +32,7 @@ public class ElasticsearchFlush implements IFlush {
 	 */
 	public void flush(String counterName, String key,
 			Map<String, String> fieldValues, String timeStamp, long count) {
-		Map<String,Object> map = new HashMap<String,Object>();
+		Map<String,String> map = new HashMap<String,String>();
 		
 		if(fieldValues != null && fieldValues.size() > 0)  {
 			map.putAll(fieldValues);

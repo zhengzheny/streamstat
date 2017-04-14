@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gsta.bigdata.stream.BloomFilterFactory;
 import com.gsta.bigdata.stream.utils.ConfigSingleton;
+import com.gsta.bigdata.stream.utils.Constants;
 import com.gsta.bigdata.stream.utils.WindowTime;
 
 public class CGI1HourCounter extends AbstractCounter {
@@ -17,16 +18,13 @@ public class CGI1HourCounter extends AbstractCounter {
 	private long repeatCount = 1;
 		
 	public CGI1HourCounter(String name) {
-		super(name);
-		
+		super(name);		
 		// 1 hours
 		double t = 1 * 3600 * 1000 * ConfigSingleton.getInstance()
-			.getCounterFlushTimeGapRatio(super.name);
-		
-/**		test，5min
-		double t = 300 * 1000 * ConfigSingleton.getInstance()
-				.getCounterFlushTimeGapRatio(super.name);
-*/
+			.getCounterFlushTimeGapRatio(super.name);		
+//		test，5min
+/*		double t = 300 * 1000 * ConfigSingleton.getInstance()
+				.getCounterFlushTimeGapRatio(super.name);*/
 		this.flushTimeGap = (long) t;
 	 }
 
@@ -35,12 +33,11 @@ public class CGI1HourCounter extends AbstractCounter {
 		if (kafkaKey == null || valueData == null) {
 			return;
 		}
-
 		boolean isExist = BloomFilterFactory.getInstance().isExist(
 				super.getBloomFilterName(), timeStamp, valueData);
 		if (!isExist) {			
 				WindowTime.WinTime winTime = WindowTime.get1hour(timeStamp);
-				String key =  winTime.getTimeStamp();
+				String key =  valueData.get(Constants.FIELD_ECGI)+ Constants.KEY_DELIMITER + winTime.getTimeStamp();
 				super.addCount(key);
 				super.addCountTimeStamp(key);
 		}else

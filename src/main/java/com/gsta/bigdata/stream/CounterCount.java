@@ -13,9 +13,9 @@ import com.gsta.bigdata.stream.utils.Constants;
 public class CounterCount implements Serializable {
 	private static final long serialVersionUID = -1294630685484843669L;
 	public long count;
-	public Map<String, Object> map;
+	public Map<String, String> map;
 
-	public CounterCount(long count, Map<String, Object> map) {
+	public CounterCount(long count, Map<String, String> map) {
 		super();
 		this.count = count;
 		this.map = map;
@@ -32,7 +32,7 @@ public class CounterCount implements Serializable {
 	public void plusCount(long cnt){
 		this.count += cnt;
 	}
-	
+		
 	public long getCount() {
 		return count;
 	}
@@ -41,7 +41,7 @@ public class CounterCount implements Serializable {
 		return (String)map.get(key);
 	}
 	
-	public Map<String, Object> getMap() {
+	public Map<String, String> getMap() {
 		return map;
 	}
 
