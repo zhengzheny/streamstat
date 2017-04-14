@@ -15,6 +15,7 @@
 			<includes>
 				<include>etl-kafkastream.sh</include>
 				<include>groupbyetl-kafkastream.sh</include>
+				<include>secondfilteretl-kafkastream.sh</include>
 			</includes>
 			<fileMode>0755</fileMode>
 		</fileSet>
@@ -26,6 +27,8 @@
 				<include>stopstream.sh</include>
 				<include>groupbystartstream.sh</include>
                 <include>groupbystopstream.sh</include>
+                <include>secondfilterstartstream.sh</include>
+                <include>secondfilterstopstream.sh</include>
 			</includes>
 			<fileMode>0755</fileMode>
 		</fileSet>
