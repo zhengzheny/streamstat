@@ -3,6 +3,7 @@ package com.gsta.bigdata.stream;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.kafka.streams.KafkaStreams;
@@ -51,7 +52,10 @@ public class SecondBloomFilterApp {
 		String outputTopic = args[4];
 		int streamAgentNum = Integer.parseInt(args[5]);
 		int flushTime = Integer.parseInt(args[6]);
-		
+//		要处理的counter以及对应的bloomfilter
+		Map<String,String> counterfilter = new HashMap<String,String>();
+		counterfilter.put("cgicount-1hour", "second-CGI-bloomFilter");
+		counterfilter.put("domaincount-1hour", "second-domain-bloomFilter");		
 		Properties props = ConfigSingleton.getInstance().getKafkaProps();
 		//一台机器启动多个stream进程，application.id需要不一样
 		props.put(StreamsConfig.APPLICATION_ID_CONFIG, applicationId);
@@ -63,7 +67,7 @@ public class SecondBloomFilterApp {
 		source.map(new KeyValueMapper<String, String, KeyValue<String, String>>() {			
 			@Override
 			public KeyValue<String, String> apply(String key, String value) {
-				secondFilterCounter.groupby(value);
+				secondFilterCounter.groupby(counterfilter,value);
 				return new KeyValue<>(null, null);
 			}
 		});

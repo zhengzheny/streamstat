@@ -23,7 +23,6 @@ public class SecondFilterCounter {
 	private Map<String, CountTimeStamp> countersTimeStamp = new ConcurrentHashMap<String, CountTimeStamp>();
 	//counter计数器进程个数
 	private int streamAgentCnt;
-	private  String selectedFilter;
 	private AtomicLong totalCount = new AtomicLong(1);
 	private AtomicLong flushCount = new AtomicLong(0);
 	final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -34,48 +33,66 @@ public class SecondFilterCounter {
 		this.streamAgentCnt = streamAgentCnt;
 	}
 
-	public void groupby(String jsonMsg){
+	public void groupby(Map<String,String> counterfilter , String jsonMsg){
 		if(jsonMsg == null)  return;	
 		CounterCount counterCount= this.gson.fromJson(jsonMsg, CounterCount.class);
 		if(counterCount != null){
 			String key = counterCount.getValue(Constants.OUTPUT_FIELD_KEY);
 			if(key == null) return;
-//			截取key中的timestamp
-			String keyfileds[] = key.split(Constants.KEY_DELIMITER);
 			long timestamp = 0;
-			try{
-			 timestamp = Long.parseLong(keyfileds[1]);
-			} catch(NumberFormatException e){
-				logger.error("invalid timestamp:{}",e.getMessage()+ "key=" +key);
-				return;
-			}
+			String TimeStamp ="";
+//			截取key中的timestamp
+				String keyfileds[] = key.split(Constants.KEY_DELIMITER);
+				 TimeStamp = keyfileds[1];				
+				try{
+				 timestamp = Long.parseLong(keyfileds[1]);
+				} catch(NumberFormatException e){
+					logger.error("invalid timestamp:{}",e.getMessage()+ "key=" +key);
+					return;
+				}				 		
 			String counterName = counterCount.getValue(Constants.OUTPUT_FIELD_COUNTER_NAME);
 			Map<String, String>valueData = counterCount.getMap();
-			//key=counterName+key
-			key =  counterName + Constants.KEY_DELIMITER + key;
-			if (counterName.equals("cgicount-1hour") ){
-				 selectedFilter = "second-CGI-bloomFilter";}
-			else{  selectedFilter = "second-domain-bloomFilter";}
-				boolean isExist = BloomFilterFactory.getInstance().isExist(
-					selectedFilter, timestamp, valueData);
-//				判断key值是否存在，如果不存在，创建counter
-				if (!isExist){							
-						counters.put(key, new GroupbyCount(counterCount));
-						countersTimeStamp.computeIfAbsent(key, k->new CountTimeStamp());	
-				}else{	
-					    GroupbyCount groupbyCount = counters.get(key);
+			//key=counterName+timestamp,目的是将多条ecgi的记录转成一条该时间段的记录
+			key =  counterName + Constants.KEY_DELIMITER + TimeStamp;
+//			logger.info("key="+key);
+			String selectedFilter = "";
+//			判断数据是否存在
+			boolean isExist =false;
+			for (Map.Entry<String, String> entry : counterfilter.entrySet()) {
+				if (counterName.equals(entry.getKey())){
+					selectedFilter=entry.getValue();
+					 isExist = BloomFilterFactory.getInstance().isExist(
+							selectedFilter, timestamp, valueData);
+				}
+			}		
+//			如果不存在
+				if (!isExist){	
+//					判断是否存在该counter
+					if(counters.containsKey(key)){
+						//如果已经存在，累积count值
+						GroupbyCount groupbyCount = counters.get(key);
 						if(groupbyCount != null){
-							int cnt = groupbyCount.getCnt();
+							groupbyCount.groupby(counterCount);
+/*							int cnt = groupbyCount.getCnt();
 							if(cnt >= this.streamAgentCnt){
 								CounterCacheSingleton.getSingleton().offer(groupbyCount);
 								counters.remove(key);
+								logger.info("remove key"+key);
 								countersTimeStamp.remove(key);
 								this.flushCount.incrementAndGet();
-							}
+							}*/
+						}
+					}else{
+//						不存在，就创建counter
+						counters.put(key, new GroupbyCount(counterCount));
+						logger.info("buildcounter:"+key);
+						countersTimeStamp.computeIfAbsent(key, k->new CountTimeStamp());
+					}
+				}else{
 								repeatCount++;	
 							if(repeatCount % 10000 == 0){
-			logger.info("{} has repeat count={}","second-CGI-bloomFilter",repeatCount);
-							}}	
+			logger.info("{} has repeat count={}",counterName,repeatCount);
+							}	
 					}
 						BloomFilterFactory.getInstance().add(timestamp, valueData);
 				}
