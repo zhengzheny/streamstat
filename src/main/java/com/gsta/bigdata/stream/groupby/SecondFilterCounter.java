@@ -1,6 +1,5 @@
 package com.gsta.bigdata.stream.groupby;
 
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -17,21 +16,25 @@ import com.gsta.bigdata.stream.counter.CountTimeStamp;
 import com.gsta.bigdata.stream.utils.Constants;
 
 public class SecondFilterCounter {
-	//key=计数器中的key,由timestamp+keyFields组成,GroupbyCount由kafka读取的map
+	// key=计数器中的key,由timestamp+keyFields组成,GroupbyCount由kafka读取的map
 	private Map<String, GroupbyCount> counters = new ConcurrentHashMap<String, GroupbyCount>();
-	//key的创建时间,用于扫描进程清理计数器
+	// key的创建时间,用于扫描进程清理计数器
 	private Map<String, CountTimeStamp> countersTimeStamp = new ConcurrentHashMap<String, CountTimeStamp>();
-	//counter计数器进程个数
+	// counter计数器进程个数
 	private int streamAgentCnt;
+
+	private String selectedFilter;
+
 	private AtomicLong totalCount = new AtomicLong(1);
 	private AtomicLong flushCount = new AtomicLong(0);
 	final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private final Gson gson = new Gson();
 	private long repeatCount = 1;
-	
+
 	public SecondFilterCounter(int streamAgentCnt) {
 		this.streamAgentCnt = streamAgentCnt;
 	}
+
 
 	public void groupby(Map<String,String> counterfilter , String jsonMsg){
 		if(jsonMsg == null)  return;	
@@ -91,13 +94,15 @@ public class SecondFilterCounter {
 				}else{
 								repeatCount++;	
 							if(repeatCount % 10000 == 0){
-			logger.info("{} has repeat count={}",counterName,repeatCount);
+			            logger.info("{} has repeat count={}",counterName,repeatCount);
 							}	
 					}
-						BloomFilterFactory.getInstance().add(timestamp, valueData);
 				}
-				this.totalCount.incrementAndGet();
 			}
+			BloomFilterFactory.getInstance().add(timestamp, valueData);
+		}
+		this.totalCount.incrementAndGet();
+	}
 
 	public Map<String, GroupbyCount> getCounters() {
 		return counters;
