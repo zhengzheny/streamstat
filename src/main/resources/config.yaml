@@ -41,6 +41,12 @@ bloomFilter:
     - 1hour-domain-bloomFilter
     - second-CGI-bloomFilter
     - second-domain-bloomFilter
+    - 1hourtrain-mdn-bloomFilter
+    - 1hoursouthtrain-mdn-bloomFilter
+    - 1hourphoneexpo-mdn-bloomFilter
+    - 5mintrain-mdn-bloomFilter
+    - 5minsouthtrain-mdn-bloomFilter   
+    - 5minphoneexpo-mdn-bloomFilter
   5min-mdn-bloomFilter: 
     fields: MSISDN
     size: 24
@@ -69,7 +75,37 @@ bloomFilter:
     fields: key
     size: 6 
     timeGap: 1hour
-  
+  1hourtrain-mdn-bloomFilter:
+    area: 1hourtrainstation
+    fields: MSISDN
+    size: 6
+    timeGap: 1hour
+  1hoursouthtrain-mdn-bloomFilter: 
+    area: 1hoursouthtrainstation
+    fields: MSISDN
+    size: 6
+    timeGap: 1hour
+  1hourphoneexpo-mdn-bloomFilter:
+    area: 1hourphoneexpo
+    fields: MSISDN
+    size: 6
+    timeGap: 1hour
+  5mintrain-mdn-bloomFilter:
+    area: 5mintrainstation
+    fields: MSISDN
+    size: 24
+    timeGap: 5min
+  5minsouthtrain-mdn-bloomFilter: 
+    area: 5minsouthtrainstation
+    fields: MSISDN
+    size: 24
+    timeGap: 5min
+  5minphoneexpo-mdn-bloomFilter:
+    area: 5minphoneexpo
+    fields: MSISDN
+    size: 24
+    timeGap: 5min
+   
 sourceFields:
   fields: 
       - MSISDN
@@ -112,6 +148,10 @@ couterList:
   - domaincount-1hour
   #1小时内域名访问的dpi数,三级域名,无需去重
   - domainstat-1hour
+  #一小时内区域内的去重后用户数，流量，域名统计
+  - area-stat-1hour
+  #5分钟内区域内的去重后用户数，流量，域名统计
+  - area-stat-5min
   
 #derepeated mdn and mdn-prefix stat in 5 min
 huawei4g-userstat-5min:
@@ -201,7 +241,7 @@ mdn-day-data:
   continuousFlushWaitTime: 120
   keyFields: MSISDN
   
-############new############  
+
 cgicount-1hour:
   type: com.gsta.bigdata.stream.counter.CGI1HourCounter
   flushes: elasticsearch
@@ -235,7 +275,23 @@ dpi-1hour-data:
   flushes: elasticsearch
   flushTimeGapRatio: 1.05
   timeGap: 1hour
+############new############  
+area-stat-1hour:
+  type: com.gsta.bigdata.stream.counter.Area1HourCounter
+  flushes: elasticsearch
+  flushTimeGapRatio: 1.05
+  bloomFilter: train-mdn-bloomFilter
+  timeGap: 1hour
+  keyFields: type,userstat,userdata,domain
 
+area-stat-5min:
+  type: com.gsta.bigdata.stream.counter.Area5MinCounter
+  flushes: elasticsearch
+  flushTimeGapRatio: 1.1
+  bloomFilter: train-mdn-bloomFilter
+  timeGap: 5min
+  keyFields: type,userstat,userdata,domain
+  
 redis:
   host: XTH04-Sugoni840-9
   port: 6379

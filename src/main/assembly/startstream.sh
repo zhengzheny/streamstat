@@ -12,7 +12,7 @@ curr=`date +"%Y%m%d"`
 #applicationId="counter-$curr"
 applicationId="counter-20170315"
 #初始化布隆过滤器列表
-initbloomFilters="5min-mdn-bloomFilter,1hour-mdn-bloomFilter,1day-mdn-bloomFilter,1hour-CGI-bloomFilter,1hour-domain-bloomFilter"
+initbloomFilters="5min-mdn-bloomFilter,1hour-mdn-bloomFilter,1day-mdn-bloomFilter,1hour-CGI-bloomFilter,1hour-domain-bloomFilter,1hourphoneexpo-mdn-bloomFilter,1hoursouthtrain-mdn-bloomFilter,1hourtrain-mdn-bloomFilter,5minphoneexpo-mdn-bloomFilter,5minsouthtrain-mdn-bloomFilter,5mintrain-mdn-bloomFilter"
 
 if [ ! -d "$configPath" ]
 then

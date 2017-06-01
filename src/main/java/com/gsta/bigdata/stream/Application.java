@@ -171,7 +171,7 @@ public class Application {
 				}
 				
 				//布隆过滤插入数据
-				BloomFilterFactory.getInstance().add(timeStamp, data);
+				BloomFilterFactory.getInstance().add("province",timeStamp, data);
 				return new KeyValue<>(null, null);
 			}
 		});
