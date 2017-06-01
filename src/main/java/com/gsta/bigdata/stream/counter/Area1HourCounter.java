@@ -54,11 +54,9 @@ public class Area1HourCounter extends AbstractCounter {
 		ArrayList<String> TrainECGIList = new ArrayList<String>(Arrays.asList(traincgi));
 		ArrayList<String> SounthTrainECGIList = new ArrayList<String>(Arrays.asList(southtraincgi));
 		ArrayList<String> PhoneExpoECGIList = new ArrayList<String>(Arrays.asList(phoneExpocgi));
-//		ecgi：区域的标志位
 		String ECGI = valueData.get(Constants.FIELD_ECGI);
 		String type = "";
 		boolean isExist = true;
-//		是否属于cgi的标志位
 		boolean flag = false;
 		String selectedFilter= "";
 //		布隆过滤器目标区域

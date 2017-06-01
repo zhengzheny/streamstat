@@ -50,10 +50,8 @@ public class Area5MinCounter extends AbstractCounter {
 		ArrayList<String> SounthTrainECGIList = new ArrayList<String>(Arrays.asList(southtraincgi));
 		ArrayList<String> PhoneExpoECGIList = new ArrayList<String>(Arrays.asList(phoneExpocgi));
 		String ECGI = valueData.get(Constants.FIELD_ECGI);
-//		ecgi属于火车站或者火车南站
 		String type = "";
 		boolean isExist = true;
-//		是否属于train cgi的标志位
 		boolean flag = false;
 		String selectedFilter= "";
 		String area = "";
