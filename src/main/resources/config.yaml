@@ -377,11 +377,11 @@ redis:
   blockWhenExhausted: false
   
 mysql:
-  URL: jdbc:mysql://132.96.82.8/noce
-  user: NOCE
-  pass: NocE@2015
+  URL: ##################
+  user: ################
+  pass: #################
   size5min: 10
-  size1hour: 1000
+  size1hour: 100
   
 #Deprecated
 elasticsearch:
