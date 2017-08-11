@@ -41,12 +41,20 @@ bloomFilter:
     - 1hour-domain-bloomFilter
     - second-CGI-bloomFilter
     - second-domain-bloomFilter
-    - 1hourtrain-mdn-bloomFilter
-    - 1hoursouthtrain-mdn-bloomFilter
-    - 1hourphoneexpo-mdn-bloomFilter
-    - 5mintrain-mdn-bloomFilter
-    - 5minsouthtrain-mdn-bloomFilter   
-    - 5minphoneexpo-mdn-bloomFilter
+    - 1hourTrain-mdn-bloomFilter
+    - 1hourSouthTrain-mdn-bloomFilter
+    - 1hourPhoneExpo-mdn-bloomFilter
+    - 1hourPhoneExpoHotel-mdn-bloomFilter
+    - 1hourPhoneExpoAirport-mdn-bloomFilter
+    - 1hourGsta-mdn-bloomFilter
+    - 5minTrain-mdn-bloomFilter
+    - 5minSouthTrain-mdn-bloomFilter   
+    - 5minPhoneExpo-mdn-bloomFilter
+    - 5minPhoneExpoHotel-mdn-bloomFilter
+    - 5minPhoneExpoAirport-mdn-bloomFilter
+    - 5minGsta-mdn-bloomFilter
+    - 5minSportCenter-mdn-bloomFilter
+    - 1hourSportCenter-mdn-bloomFilter
   5min-mdn-bloomFilter: 
     fields: MSISDN
     size: 24
@@ -75,36 +83,76 @@ bloomFilter:
     fields: key
     size: 6 
     timeGap: 1hour
-  1hourtrain-mdn-bloomFilter:
-    area: 1hourtrainstation
+  1hourTrain-mdn-bloomFilter:
+    area: 1hourTrain
     fields: MSISDN
     size: 6
     timeGap: 1hour
-  1hoursouthtrain-mdn-bloomFilter: 
-    area: 1hoursouthtrainstation
+  1hourSouthTrain-mdn-bloomFilter: 
+    area: 1hourSouthTrain
     fields: MSISDN
     size: 6
     timeGap: 1hour
-  1hourphoneexpo-mdn-bloomFilter:
-    area: 1hourphoneexpo
+  1hourPhoneExpo-mdn-bloomFilter:
+    area: 1hourPhoneExpo
     fields: MSISDN
     size: 6
     timeGap: 1hour
-  5mintrain-mdn-bloomFilter:
-    area: 5mintrainstation
+  1hourPhoneExpoHotel-mdn-bloomFilter:
+    area: 1hourPhoneExpoHotel
+    fields: MSISDN
+    size: 6
+    timeGap: 1hour
+  1hourPhoneExpoAirport-mdn-bloomFilter:
+    area: 1hourPhoneExpoAirport
+    fields: MSISDN
+    size: 6
+    timeGap: 1hour
+  1hourGsta-mdn-bloomFilter:
+    area: 1hourGsta
+    fields: MSISDN
+    size: 6
+    timeGap: 1hour
+  5minTrain-mdn-bloomFilter:
+    area: 5minTrain
     fields: MSISDN
     size: 24
     timeGap: 5min
-  5minsouthtrain-mdn-bloomFilter: 
-    area: 5minsouthtrainstation
+  5minSouthTrain-mdn-bloomFilter: 
+    area: 5minSouthTrain
     fields: MSISDN
     size: 24
     timeGap: 5min
-  5minphoneexpo-mdn-bloomFilter:
-    area: 5minphoneexpo
+  5minPhoneExpo-mdn-bloomFilter:
+    area: 5minPhoneExpo
     fields: MSISDN
     size: 24
     timeGap: 5min
+  5minPhoneExpoHotel-mdn-bloomFilter:
+    area: 5minPhoneExpoHotel
+    fields: MSISDN
+    size: 24
+    timeGap: 5min
+  5minPhoneExpoAirport-mdn-bloomFilter:
+    area: 5minPhoneExpoAirport
+    fields: MSISDN
+    size: 24
+    timeGap: 5min
+  5minGsta-mdn-bloomFilter:
+    area: 5minGsta
+    fields: MSISDN
+    size: 24
+    timeGap: 5min
+  5minSportCenter-mdn-bloomFilter:
+    area: 5minSportCenter
+    fields: MSISDN
+    size: 24
+    timeGap: 5min
+  1hourSportCenter-mdn-bloomFilter:
+      area: 1hourSportCenter
+      fields: MSISDN
+      size: 6
+      timeGap: 1hour
    
 sourceFields:
   fields: 
@@ -148,10 +196,12 @@ couterList:
   - domaincount-1hour
   #1小时内域名访问的dpi数,三级域名,无需去重
   - domainstat-1hour
-  #一小时内区域内的去重后用户数，流量，域名统计
+  #一小时内区域内的去重后用户数，流量
   - area-stat-1hour
-  #5分钟内区域内的去重后用户数，流量，域名统计
+  #5分钟内区域内的去重后用户数，流量
   - area-stat-5min
+  #1小时区域内domain情况
+  - area-domain-1hour
   
 #derepeated mdn and mdn-prefix stat in 5 min
 huawei4g-userstat-5min:
@@ -277,20 +327,36 @@ dpi-1hour-data:
   timeGap: 1hour
 ############new############  
 area-stat-1hour:
-  type: com.gsta.bigdata.stream.counter.Area1HourCounter
+  type: com.gsta.bigdata.stream.counter.AreaCounter
   flushes: elasticsearch
   flushTimeGapRatio: 1.05
   bloomFilter: train-mdn-bloomFilter
   timeGap: 1hour
-  keyFields: type,userstat,userdata,domain
+  keyFields: area,type
+  continuousFlushes: Mysql
+  #unit is second
+  continuousFlushWaitTime: 10
 
 area-stat-5min:
-  type: com.gsta.bigdata.stream.counter.Area5MinCounter
+  type: com.gsta.bigdata.stream.counter.AreaCounter
   flushes: elasticsearch
   flushTimeGapRatio: 1.1
   bloomFilter: train-mdn-bloomFilter
   timeGap: 5min
-  keyFields: type,userstat,userdata,domain
+  keyFields: area,type
+  continuousFlushes: Mysql
+  #unit is second
+  continuousFlushWaitTime: 10
+
+area-domain-1hour:
+  type: com.gsta.bigdata.stream.counter.AreaDomainCounter
+  flushes: elasticsearch
+  flushTimeGapRatio: 1.05
+  timeGap: 1hour
+  keyFields: area,domain
+  continuousFlushes: Mysql
+  #unit is second
+  continuousFlushWaitTime: 10
   
 redis:
   host: XTH04-Sugoni840-9
@@ -309,7 +375,14 @@ redis:
   testWhileIdle: true
   testOnReturn: true
   blockWhenExhausted: false
-
+  
+mysql:
+  URL: jdbc:mysql://132.96.82.8/noce
+  user: NOCE
+  pass: NocE@2015
+  size5min: 10
+  size1hour: 1000
+  
 #Deprecated
 elasticsearch:
   cluster.name: gd

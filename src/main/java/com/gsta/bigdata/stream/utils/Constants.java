@@ -15,11 +15,14 @@ public class Constants {
 	public final static String FIELD_InputOctets = "InputOctets";
 	public final static String FIELD_OutputOctets = "OutputOctets";
 	public final static String FIELD_Domain = "Domain";
+	public final static String FIELD_Age = "Age";
+	public final static String FIELD_Sex = "Sex";
 	
 	public final static String FLUSH_CONSOLE = "console";
 	public final static String FLUSH_SIMPLE_REDIS = "simpleRedis";
 	public final static String FLUSH_MDN_DAY_REDIS = "mdnDayRedis";
 	public final static String FLUSH_ELASTICSEARCH = "elasticsearch";
+	public final static String FLUSH_Mysql= "Mysql";
 	
 	public final static String KEY_DELIMITER = "#";
 	public final static String REQUEST_KEY_DELIMITER = "#";

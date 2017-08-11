@@ -4,6 +4,7 @@ import com.gsta.bigdata.stream.flush.ConsoleFlush;
 import com.gsta.bigdata.stream.flush.ElasticsearchFlush;
 import com.gsta.bigdata.stream.flush.IFlush;
 import com.gsta.bigdata.stream.flush.MDNDayDataRedisFlush;
+import com.gsta.bigdata.stream.flush.MysqlFlush;
 import com.gsta.bigdata.stream.flush.SimpleRedisFlush;
 import com.gsta.bigdata.stream.utils.Constants;
 
@@ -17,8 +18,9 @@ public class FlushesFactory {
 			return new MDNDayDataRedisFlush();
 		} else if (Constants.FLUSH_ELASTICSEARCH.equals(name)) {
 			return new ElasticsearchFlush();
+		}else if (Constants.FLUSH_Mysql.equals(name)) {
+			return new MysqlFlush();
 		}
-
 		// default is console flush
 		return new ConsoleFlush();
 	}

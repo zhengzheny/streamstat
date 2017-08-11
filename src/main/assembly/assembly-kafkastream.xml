@@ -39,6 +39,7 @@
 				<include>config.yaml</include>
 				<include>log4j.properties</include>
 				<include>cron</include>
+				<include>cgi.txt</include>
 			</includes>
 		</fileSet>
 		<fileSet>

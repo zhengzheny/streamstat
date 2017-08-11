@@ -12,7 +12,7 @@ curr=`date +"%Y%m%d"`
 #applicationId="counter-$curr"
 applicationId="counter-20170315"
 #初始化布隆过滤器列表
-initbloomFilters="5min-mdn-bloomFilter,1hour-mdn-bloomFilter,1day-mdn-bloomFilter,1hour-CGI-bloomFilter,1hour-domain-bloomFilter,1hourphoneexpo-mdn-bloomFilter,1hoursouthtrain-mdn-bloomFilter,1hourtrain-mdn-bloomFilter,5minphoneexpo-mdn-bloomFilter,5minsouthtrain-mdn-bloomFilter,5mintrain-mdn-bloomFilter"
+initbloomFilters="1hourSportCenter-mdn-bloomFilter,5minSportCenter-mdn-bloomFilter,1hourGsta-mdn-bloomFilter,5minGsta-mdn-bloomFilter,5min-mdn-bloomFilter,1hour-mdn-bloomFilter,1day-mdn-bloomFilter,1hour-CGI-bloomFilter,1hour-domain-bloomFilter,1hourTrain-mdn-bloomFilter,1hourSouthTrain-mdn-bloomFilter,1hourPhoneExpo-mdn-bloomFilter,1hourPhoneExpoHotel-mdn-bloomFilter,1hourPhoneExpoAirport-mdn-bloomFilter,5minTrain-mdn-bloomFilter,5minSouthTrain-mdn-bloomFilter,5minPhoneExpo-mdn-bloomFilter,5minPhoneExpoHotel-mdn-bloomFilter,5minPhoneExpoAirport-mdn-bloomFilter"
 
 if [ ! -d "$configPath" ]
 then
