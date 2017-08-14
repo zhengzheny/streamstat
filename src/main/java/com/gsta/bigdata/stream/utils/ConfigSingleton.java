@@ -159,6 +159,12 @@ public class ConfigSingleton {
 		Preconditions.checkNotNull(this.configs, "yaml config is null");
 		return (Map<String, Object>) this.configs.get("redis");
 	}
+	
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> getMysqlProperties() {
+		Preconditions.checkNotNull(this.configs, "yaml config is null");
+		return (Map<String, Object>) this.configs.get("mysql");
+	}
 
 	public static ConfigSingleton getInstance() {
 		return singleton;

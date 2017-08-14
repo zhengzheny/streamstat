@@ -128,4 +128,8 @@ public class SysUtils {
 		
 		return ret;
 	}
+/*	public static void main(String argsp[]){
+		System.out.println(getLevel3Domain("10.10.1.1:8080"));
+		System.out.println(getLevel3Domain("hao123.com"));
+	}*/
 }

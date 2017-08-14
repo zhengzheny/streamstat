@@ -1,5 +1,7 @@
 package com.gsta.bigdata.stream;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -35,12 +37,15 @@ public class BloomFilterFactory {
 	private Map<String,List<String>> filterFields;
 	//每一种过滤器的时间窗口单位
 	private Map<String,String> filterTimeGap;
-	
+	//每一种过滤器的区域
+	private Map<String,String> filterArea;
 	private int expectedSize = 1000;
 	private double falsePositiveProbability = 0.1;
 	//是否开启布隆过滤开关
 	private boolean filter = false;
 	private final static int DEFAULT_BLOOM_FILTER_COUNT = 2;
+	private final static String DEFAULT_BLOOM_FILTER_AREA = "province";
+	private SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHH");
 
 	private BloomFilterFactory() {
 		this.filterSize = new HashMap<String,Integer>();
@@ -48,6 +53,7 @@ public class BloomFilterFactory {
 		this.bloomQueue = new HashMap<String,Queue<String>>();	
 		this.filterFields = new HashMap<String,List<String>>();
 		this.filterTimeGap = new HashMap<String,String>();
+		this.filterArea = new HashMap<String,String>();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -91,6 +97,9 @@ public class BloomFilterFactory {
 					
 					String timeGap = (String)filterConf.getOrDefault("timeGap", Constants.TIME_GAP_5_MIN);
 					this.filterTimeGap.put(name, timeGap);
+//					增加过滤器针对的区域
+					String area = (String)filterConf.getOrDefault("area", DEFAULT_BLOOM_FILTER_AREA);
+					this.filterArea.put(name, area);
 				}
 			}
 		}
@@ -119,16 +128,34 @@ public class BloomFilterFactory {
 	 * @param timeStamp - 时间戳,根据时间戳找到对应的布隆过滤其
 	 * @param data - 原始数据k-v
 	 */
-	public void add(long timeStamp,Map<String, String> data){
+	public void add(String area,long timeStamp,Map<String, String> data){
 		if (!this.filter) return;
 
 		// 一个个过滤器处理,5分钟/1小时/1天
 		for (Map.Entry<String, Map<String, BloomFilterWrapper>> mapEntry : this.bloomFilters.entrySet()) {
 			String filterName = mapEntry.getKey();
+			String filterArea = this.filterArea.getOrDefault(filterName,DEFAULT_BLOOM_FILTER_AREA);
+//			
 			Map<String, BloomFilterWrapper> bloomFilter = mapEntry.getValue();
-			
+//			不同区域的布隆过滤器分开处理
+			if (filterArea.equals(area)){
+//			logger.info("filterArea="+filterArea+",filterName="+filterName);
+//			由于二次去重的数据源已经是目标格式，不作处理			
+			String timekey="";
+			if (filterName.equals("second-CGI-bloomFilter")||filterName.equals("second-domain-bloomFilter")){
+				timekey=String.valueOf(timeStamp);
+//				部分数据时间格式不对
+				try {
+				          format.setLenient(false);
+				          format.parse(timekey);
+				       } catch (ParseException e) {
+				    	   logger.info("invalid timestamp:"+timekey+","+e.getMessage());
+				           return;
+				       } 
+			}else{			
 			WindowTime.WinTime winTime = this.getWindowKey(filterName,timeStamp);
-			String timekey = winTime.getTimeStamp();
+			 timekey = winTime.getTimeStamp();
+			}
 			
 			String filterKey = this.getFilterKey(filterName, data);
 			
@@ -152,10 +179,8 @@ public class BloomFilterFactory {
 						String oldkey = queue.poll();
 						BloomFilterWrapper bloomFilterWrapper = bloomFilter.get(oldkey);
 						if(bloomFilterWrapper != null){
-							bloomFilterWrapper.clear();
-							
-							bloomFilterWrapper.add(filterKey);
-							
+							bloomFilterWrapper.clear();							
+							bloomFilterWrapper.add(filterKey);							
 							bloomFilter.remove(oldkey);
 							bloomFilter.put(timekey, bloomFilterWrapper);
 							queue.offer(timekey);
@@ -170,6 +195,7 @@ public class BloomFilterFactory {
 						//队列不满,直接新加,并插入
 						this.createBloomFilter(filterName, timekey, filterKey);
 					}
+				}
 				}
 			}
 		}//end for map
@@ -202,9 +228,14 @@ public class BloomFilterFactory {
 	 */
 	public boolean isExist(String filterName,long timeStamp,Map<String, String> data){
 		Map<String, BloomFilterWrapper> bloomFilter = this.bloomFilters.get(filterName);
+		BloomFilterWrapper bloomFilterWrapper = bloomFilter.get("");
 		if(bloomFilter != null){
+			if (filterName.equals("second-CGI-bloomFilter")||filterName.equals("second-domain-bloomFilter")){
+				 bloomFilterWrapper = bloomFilter.get(String.valueOf(timeStamp));
+			}else{
 			WindowTime.WinTime winTime = this.getWindowKey(filterName,timeStamp);
-			BloomFilterWrapper bloomFilterWrapper = bloomFilter.get(winTime.getTimeStamp());
+				 bloomFilterWrapper = bloomFilter.get(winTime.getTimeStamp());
+			}
 			if(bloomFilterWrapper != null){
 				String filterKey = this.getFilterKey(filterName, data);
 				return bloomFilterWrapper.isExist(filterKey);

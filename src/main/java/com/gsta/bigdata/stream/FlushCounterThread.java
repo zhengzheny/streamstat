@@ -64,12 +64,22 @@ public class FlushCounterThread implements Runnable {
 						}
 					}
 					Count count = counter.getCounters().get(key);
-
 					for (IFlush flush : counter.getFlushes()) {
 						flush.flush(counter.getName(), key, fieldValues,timeStamp, count.getCnt());
 					}
-
-					//flush出去后,删除计数器
+//				continue flush
+					IFlush[] continuousFlushes = counter.getContinuousFlushes();
+					if (continuousFlushes == null) {
+						counter.getCounters().remove(key);
+						counter.getCountersTimeStamp().remove(key);
+						flushCount++;
+						break;
+					}
+					for (IFlush flush : continuousFlushes) {
+//						logger.info("jiancha"+counter.getName()+key+fieldValues+timeStamp);
+						flush.flush(counter.getName(), key, fieldValues,timeStamp, count.getCnt());						
+					}
+					//flush出去后,不删除计数器，continue去删
 					counter.getCounters().remove(key);
 					counter.getCountersTimeStamp().remove(key);
 					flushCount++;

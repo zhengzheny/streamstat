@@ -1,10 +1,16 @@
 package com.gsta.bigdata.stream;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Map.Entry;
 
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KeyValue;
@@ -20,6 +26,7 @@ import com.gsta.bigdata.stream.counter.Count;
 import com.gsta.bigdata.stream.flush.IFlush;
 import com.gsta.bigdata.stream.utils.ConfigSingleton;
 import com.gsta.bigdata.stream.utils.Constants;
+import static com.gsta.bigdata.stream.utils.ReadSource.readCgiSource;
 
 /**
  * 启动kafak stream,读取数据源的消息进行计数器处理,并把结果写入到kafak topic中
@@ -33,7 +40,8 @@ import com.gsta.bigdata.stream.utils.Constants;
  */
 public class Application {
 	final static Logger logger = LoggerFactory.getLogger(Application.class);
-	
+	public static Map<String,ArrayList<String>> mapCGI = new HashMap<String,ArrayList<String>>();
+	public static Map<String,String> mapDomain = new HashMap<String,String>();
 	private static Map<String,AbstractCounter> getCounters(){
 		List<String> lstCounter = ConfigSingleton.getInstance().getCounterList();
 		if(lstCounter == null){
@@ -50,7 +58,7 @@ public class Application {
 		
 		return counters;
 	}
-	
+
 	//关闭程序时,把结果数据写到kafak
 	private static void flushCounters(Map<String,AbstractCounter> counters) {
 		if (counters == null) return;
@@ -86,6 +94,16 @@ public class Application {
 				if(count.getCnt() > 0){
 					for (IFlush flush : counter.getFlushes()) {
 						flush.flush(counter.getName(), key,fieldValues, timeStamp,count.getCnt());
+					}
+					IFlush[] continuousFlushes = counter.getContinuousFlushes();
+					if (continuousFlushes == null) {
+						counter.getCounters().remove(key);
+						counter.getCountersTimeStamp().remove(key);
+						break;
+					}
+					for (IFlush flush : continuousFlushes) {
+//						logger.info("jiancha"+counter.getName()+key+fieldValues+timeStamp);
+						flush.flush(counter.getName(), key, fieldValues,timeStamp, count.getCnt());						
 					}
 					counter.getCounters().remove(key);
 					counter.getCountersTimeStamp().remove(key);
@@ -131,6 +149,11 @@ public class Application {
 		}
 		
 		ConfigSingleton.getInstance().init(args[0]);
+		//	读取cgi信息
+		mapCGI =readCgiSource();
+		for (Entry<String, ArrayList<String>> entry : mapCGI.entrySet()) {
+				logger.info("mapCGI-KEY:"+entry.getKey()+",VALUE"+entry.getValue());
+		}
 		//定义成map,在kafkawriter线程中会用到counter对象内容
 		Map<String,AbstractCounter> counters = getCounters();
 		List<String> sourceFields = ConfigSingleton.getInstance().getSourceFields();
@@ -171,7 +194,7 @@ public class Application {
 				}
 				
 				//布隆过滤插入数据
-				BloomFilterFactory.getInstance().add(timeStamp, data);
+				BloomFilterFactory.getInstance().add("province",timeStamp, data);
 				return new KeyValue<>(null, null);
 			}
 		});
@@ -182,14 +205,14 @@ public class Application {
 		//每一个计数器都有一个线程去检查统计周期是否完成
 		Thread[] counterFlushthreads = new Thread[counters.size()];
 		//continuousFlushCounterThreads是有些计数器统计周期很长,中间刷新到redis,供查询
-		Thread[] continuousFlushCounterThreads = new Thread[counters.size()];
+//		Thread[] continuousFlushCounterThreads = new Thread[counters.size()];
 		int i = 0;
 		for(Map.Entry<String, AbstractCounter> entry:counters.entrySet()){
 			counterFlushthreads[i] = new Thread(new FlushCounterThread(entry.getValue()));
 			counterFlushthreads[i].start();
 			
-			continuousFlushCounterThreads[i] = new Thread(new ContinuousFlushCounterThread(entry.getValue()));
-			continuousFlushCounterThreads[i].start();
+//			continuousFlushCounterThreads[i] = new Thread(new ContinuousFlushCounterThread(entry.getValue()));
+//			continuousFlushCounterThreads[i].start();
 			i++;
 		}
 		
@@ -220,6 +243,13 @@ public class Application {
 					for(Map.Entry<String, AbstractCounter> entry:counters.entrySet()){
 						for(IFlush flush:entry.getValue().getFlushes()){
 							flush.close();
+						}
+						if (entry.getValue().getContinuousFlushes()==null){
+							continue;
+						}
+						for (IFlush flush : entry.getValue().getContinuousFlushes()) {
+//							logger.info("jiancha"+counter.getName()+key+fieldValues+timeStamp);
+							flush.close();						
 						}
 					}
 					
